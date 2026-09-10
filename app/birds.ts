@@ -1,3 +1,4 @@
+import {WORLD_RADIUS} from './world';
 import * as T from 'three';
 
 export function createBirds(globe:T.Group){
@@ -20,7 +21,7 @@ export function createBirds(globe:T.Group){
   const flock=Math.floor(i/4),member=i%4,t=time*(.072+flock*.009)+flock*2.1+member*.055;
   const lat=.20+Math.sin(t*1.4+flock)*.28+member*.018;
   const altitude=2.35+flock*.22+Math.sin(time*.6+i)*.055;
-  return new T.Vector3(Math.cos(t)*Math.cos(lat),Math.sin(lat),Math.sin(t)*Math.cos(lat)).multiplyScalar(5.6+altitude);
+  return new T.Vector3(Math.cos(t)*Math.cos(lat),Math.sin(lat),Math.sin(t)*Math.cos(lat)).multiplyScalar(WORLD_RADIUS+altitude);
  };
  const update=(time:number)=>{for(const [{bird,wings},i] of birds.map((b,i)=>[b,i] as const)){
   const p=position(i,time),up=p.clone().normalize(),forward=position(i,time+.01).sub(p).projectOnPlane(up).normalize(),right=new T.Vector3().crossVectors(forward,up).normalize();

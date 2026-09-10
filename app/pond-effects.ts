@@ -1,0 +1,14 @@
+import * as T from 'three';
+import {POND_ANCHOR,POND_INVERSE,samplePond} from './pond-physics';
+export function createPondEffects(){
+ const pools:{rings:{mesh:T.Mesh;age:number}[];drops:T.Points;vel:T.Vector3[];life:number[];cursor:number;ringCursor:number}[]=[];
+ const ringGeo=new T.RingGeometry(.86,1,28);let previous=0,lastEmit=0,lastPosition=new T.Vector3();
+ function add(group:T.Group){const rings=Array.from({length:16},()=>{const mesh=new T.Mesh(ringGeo,new T.MeshBasicMaterial({color:0xc5e2ce,transparent:true,opacity:0,depthWrite:false,side:T.DoubleSide}));mesh.rotation.x=-Math.PI/2;mesh.visible=false;group.add(mesh);return {mesh,age:10}});const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(new Float32Array(48*3).fill(-100),3));const drops=new T.Points(geo,new T.PointsMaterial({color:0xcfe4dc,size:.010,transparent:true,opacity:.75,depthWrite:false}));drops.frustumCulled=false;group.add(drops);pools.push({rings,drops,vel:Array.from({length:48},()=>new T.Vector3()),life:Array(48).fill(0),cursor:0,ringCursor:0});}
+ return {add,update(time:number,bus?:T.Object3D){const dt=Math.min(.05,Math.max(0,(time-previous)*.001));previous=time;
+  for(const pool of pools){for(const r of pool.rings){r.age+=dt;r.mesh.visible=r.age<1.2;r.mesh.scale.setScalar(Math.min(r.mesh.userData.maxRadius??.1,.012+r.age*.085));(r.mesh.material as T.MeshBasicMaterial).opacity=Math.max(0,(1-r.age/1.2)*.35)}const p=pool.drops.geometry.attributes.position;for(let i=0;i<48;i++){pool.life[i]-=dt;if(pool.life[i]<=0){p.setXYZ(i,0,-100,0);continue}pool.vel[i].y-=1.6677*dt;p.setXYZ(i,p.getX(i)+pool.vel[i].x*dt,p.getY(i)+pool.vel[i].y*dt,p.getZ(i)+pool.vel[i].z*dt);if(p.getY(i)<-.026)pool.life[i]=0}p.needsUpdate=true;}
+  if(!bus||!dt)return;const speed=lastPosition.lengthSq()>1?bus.position.distanceTo(lastPosition)/dt:0;lastPosition.copy(bus.position);if(speed<.018||time-lastEmit<90)return;lastEmit=time;
+  for(const contact of (bus.userData.waterContacts??[]) as T.Vector3[]){const position=contact.clone().applyQuaternion(bus.quaternion).add(bus.position),pond=samplePond(position.clone().normalize());if(!pond?.wet||position.length()-.0867>pond.waterRadius)continue;const local=position.sub(POND_ANCHOR).applyQuaternion(POND_INVERSE);
+   for(const pool of pools){const ring=pool.rings[pool.ringCursor++%16];ring.age=0;ring.mesh.userData.maxRadius=Math.max(.002,Math.min(.10,(1-pond.r)*.3));ring.mesh.position.set(local.x,-.023,local.z);for(let j=0;j<3;j++){const i=pool.cursor++%48,a=i*2.399;pool.life[i]=.35;pool.drops.geometry.attributes.position.setXYZ(i,local.x,-.023,local.z);pool.vel[i].set(Math.cos(a)*.10,.12+Math.min(speed,.8)*.22,Math.sin(a)*.10)}}
+  }
+ },dispose(){ringGeo.dispose();for(const pool of pools){pool.rings.forEach(r=>(r.mesh.material as T.Material).dispose());pool.drops.geometry.dispose();(pool.drops.material as T.Material).dispose()}}};
+}

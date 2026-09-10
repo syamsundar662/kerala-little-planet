@@ -1,3 +1,4 @@
+import {WORLD_RADIUS} from './world';
 import * as T from 'three';
 import type {Obstacle} from './vehicle-physics';
 
@@ -5,19 +6,19 @@ export function addUtilities(globe:T.Group,obstacles:Obstacle[],latitude:(t:numb
  const concrete=new T.MeshStandardMaterial({color:0x99998d,roughness:.95});
  const steel=new T.MeshStandardMaterial({color:0x4e5653,metalness:.65,roughness:.65});
  const ceramic=new T.MeshStandardMaterial({color:0x695748,roughness:.30});
- const position=(t:number,lat:number)=>new T.Vector3(Math.cos(t)*Math.cos(lat),Math.sin(lat),Math.sin(t)*Math.cos(lat)).multiplyScalar(5.6);
+ const position=(t:number,lat:number)=>new T.Vector3(Math.cos(t)*Math.cos(lat),Math.sin(lat),Math.sin(t)*Math.cos(lat)).multiplyScalar(WORLD_RADIUS);
  const poles:T.Group[]=[];
  const lampGlass=new T.MeshStandardMaterial({color:0xffeed0,emissive:0xffcb83,emissiveIntensity:0,roughness:.35});
  const streetLights:T.SpotLight[]=[];
  for(let i=0;i<12;i++){
-  let t=i/12*Math.PI*2+.04;let p=position(t,latitude(t)-.17);
+  let t=i/12*Math.PI*2+.04;let p=position(t,latitude(t)-.95/WORLD_RADIUS);
   // Slide along the verge to avoid foundations and tree trunks.
   for(let attempt=0;attempt<12;attempt++){
-   const n=p.clone().normalize();if(!obstacles.some(o=>Math.acos(T.MathUtils.clamp(n.dot(o.normal),-1,1))*5.6<(o.radius??Math.hypot(o.halfX??0,o.halfZ??0))+.08))break;
-   t+=.012;p=position(t,latitude(t)-.17);
+   const n=p.clone().normalize();if(!obstacles.some(o=>Math.acos(T.MathUtils.clamp(n.dot(o.normal),-1,1))*WORLD_RADIUS<(o.radius??Math.hypot(o.halfX??0,o.halfZ??0))+.08))break;
+   t+=.012;p=position(t,latitude(t)-.95/WORLD_RADIUS);
   }
   const pole=new T.Group();pole.name='Concrete electricity pole';pole.position.copy(p);
-  const up=p.clone().normalize(),forward=position(t+.001,latitude(t+.001)-.17).sub(p).projectOnPlane(up).normalize(),side=new T.Vector3().crossVectors(forward,up).normalize();pole.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(forward,up,side));
+  const up=p.clone().normalize(),forward=position(t+.001,latitude(t+.001)-.95/WORLD_RADIUS).sub(p).projectOnPlane(up).normalize(),side=new T.Vector3().crossVectors(forward,up).normalize();pole.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(forward,up,side));
   const shaft=new T.Mesh(new T.CylinderGeometry(.014,.023,1.65,8),concrete);shaft.position.y=.78;shaft.castShadow=shaft.receiveShadow=true;pole.add(shaft);
   const base=new T.Mesh(new T.CylinderGeometry(.036,.043,.12,8),concrete);base.position.y=.025;pole.add(base);
   const arm=new T.Mesh(new T.BoxGeometry(.026,.026,.30),steel);arm.position.y=1.46;arm.castShadow=true;pole.add(arm);

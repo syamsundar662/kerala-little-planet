@@ -6,22 +6,22 @@ import {surfaceRadius} from './vehicle-physics';
 export function createBusContactShadow(bus:T.Group){
  const geometry=new T.PlaneGeometry(2.05,.62,40,16);geometry.rotateX(-Math.PI/2);
  const coordinates=geometry.attributes.position.array.slice();
- const material=new T.ShaderMaterial({transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1,
+ const material=new T.ShaderMaterial({uniforms:{contacts:{value:[1,1,1,1]},wheelPositions:{value:[new T.Vector2(.527,.19),new T.Vector2(.527,-.19),new T.Vector2(-.4845,.172),new T.Vector2(-.4845,-.172)]}},transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1,
   vertexShader:`varying vec2 footprint;void main(){footprint=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-  fragmentShader:`varying vec2 footprint;
+  fragmentShader:`varying vec2 footprint;uniform float contacts[4];uniform vec2 wheelPositions[4];
   void main(){vec2 p=(footprint-.5)*vec2(2.05,.62);
    float body=(1.0-smoothstep(.62,1.0,abs(p.x)))*(1.0-smoothstep(.10,.29,abs(p.y)))*.33;
    float tires=0.0;
-   for(int a=0;a<2;a++)for(int b=0;b<2;b++){
-    vec2 wheel=vec2(a==0?-.527:.527,b==0?-.18955:.18955);
-    vec2 d=(p-wheel)/vec2(.060,.048);tires=max(tires,exp(-dot(d,d)*1.8)*.64);
+   for(int i=0;i<4;i++){
+    vec2 wheel=wheelPositions[i];
+    vec2 d=(p-wheel)/vec2(.060,.048);tires=max(tires,exp(-dot(d,d)*1.8)*.64*contacts[i]);
    }
    float opacity=1.0-(1.0-body)*(1.0-tires);if(opacity<.003)discard;gl_FragColor=vec4(0.0,0.0,0.0,opacity);
   }`});
  const mesh=new T.Mesh(geometry,material);mesh.name='Bus underbody and tire contact shadow';mesh.frustumCulled=false;mesh.renderOrder=1;bus.add(mesh);
  const local=new T.Vector3(),normal=new T.Vector3(),inverse=new T.Quaternion();
  return {update(inside:boolean){
-  if(bus.position.lengthSq()<1)return;inverse.copy(bus.quaternion).invert();
+  if(bus.position.lengthSq()<1)return;material.uniforms.contacts.value=(bus.userData.wheelGrounded??[true,true,true,true]).map((v:boolean)=>v?1:0);inverse.copy(bus.quaternion).invert();
   const positions=geometry.attributes.position;
   for(let i=0;i<positions.count;i++){
    local.fromArray(coordinates,i*3);
