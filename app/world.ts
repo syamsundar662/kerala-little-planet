@@ -8,7 +8,7 @@ export const ROAD_ROUTES=[0,1,2] as const;
 const ROAD_KNOTS=[0,.43,1.06,1.72,2.18,2.93,3.37,4.12,4.64,5.23,5.81];
 const MAIN=[.16,.08,.23,.30,.17,.24,.03,-.06,.09,.26,.22];
 const BRANCH_NORTH=[.38,.51,.35,.42,.61,.46,.15,-.15,-.11,.27,.44];
-const BRANCH_SOUTH=[-.35,-.21,-.44,-.58,-.28,.12,.18,-.23,-.46,-.29,-.43];
+const BRANCH_SOUTH=[-.35,-.21,-.44,-.58,-.28,.18,-.25,-.23,-.46,-.29,-.43];
 function windingCurve(t:number,values:number[]){
  const tau=Math.PI*2,n=ROAD_KNOTS.length,x=((t%tau)+tau)%tau;
  let i=n-1;for(let k=0;k<n-1;k++)if(x<ROAD_KNOTS[k+1]){i=k;break;}

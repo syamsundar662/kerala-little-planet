@@ -12,3 +12,10 @@ Additional CC0 Poly Haven materials:
 Color, normal and roughness maps, 1K.
 
 Worn asphalt material (CC0): https://polyhaven.com/a/worn_asphalt
+
+Kerala prop kit CC0 Poly Haven materials (1K diffuse + OpenGL normal + roughness):
+- red_brick (laterite/red-brick block walls): https://polyhaven.com/a/red_brick_03
+- thatch (reed/straw roofing): https://polyhaven.com/a/reed_roof_03
+- wood_planks (weathered wooden planks): https://polyhaven.com/a/weathered_brown_planks
+- corrugated_metal (corrugated roofing sheet): https://polyhaven.com/a/corrugated_iron_02
+License: https://polyhaven.com/license (CC0).

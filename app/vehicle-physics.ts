@@ -3,12 +3,13 @@ import {samplePond} from './pond-physics';
 import {Vector3,Quaternion,MathUtils} from 'three';
 import {roadElevation} from './road-surface';
 import {stepDriving,type DriveState} from './driving';
-export type Obstacle={normal:Vector3;radius?:number;axis?:Vector3;halfX?:number;halfZ?:number};
+export type Obstacle={disabled?:boolean;onImpact?:(speed:number,direction:Vector3)=>boolean;normal:Vector3;radius?:number;axis?:Vector3;halfX?:number;halfZ?:number};
 export const PLANET_RADIUS=WORLD_RADIUS;
 export function surfaceRadius(normal:Vector3){const t=Math.atan2(normal.z,normal.x),lat=Math.asin(normal.y);const off=roadOffset(t,lat);return samplePond(normal)?.floorRadius??(PLANET_RADIUS+terrainElevation(t,lat)+roadElevation(off))}
 export function contactRadius(normal:Vector3){const surface=surfaceRadius(normal);const wheel=.51*.17,axle=3.10*.17,track=1.115*.17;return Math.sqrt((surface+wheel)**2-axle**2-track**2)-wheel}
 type Contact={normal:Vector3;depth:number;x:number;z:number};
 function contact(state:DriveState,o:Obstacle):Contact|null{
+ if(o.disabled)return null;
  const hx=.88,hz=.225;
  const extent=o.radius??Math.hypot(o.halfX??0,o.halfZ??0),cos=MathUtils.clamp(state.normal.dot(o.normal),-1,1);
  if(cos<Math.cos((extent+1.1)/PLANET_RADIUS))return null;
@@ -41,6 +42,7 @@ export function moveWithCollisions(state:DriveState,throttle:number,steer:number
   for(let pass=0;pass<6;pass++){let touched=false;
    for(const o of obstacles){const c=contact(state,o);if(!c)continue;hit=touched=true;
     const right=new Vector3().crossVectors(state.heading,state.normal).normalize(),velocity=state.heading.clone().multiplyScalar(state.speed).addScaledVector(right,state.lateralSpeed??0),closing=-velocity.dot(c.normal);
+    if(closing>0&&o.onImpact?.(closing,c.normal.clone().negate())){state.speed*=.96;state.lateralSpeed=(state.lateralSpeed??0)*.96;continue;}
     if(closing>0){const restitution=closing>.3?.08:0,impulse=(1+restitution)*closing;
      const change=c.normal.clone().multiplyScalar(impulse);velocity.add(change);
      const tangent=velocity.clone().addScaledVector(c.normal,-velocity.dot(c.normal)),slip=tangent.length();if(slip>1e-8)velocity.addScaledVector(tangent,-Math.min(.16*impulse,slip)/slip);

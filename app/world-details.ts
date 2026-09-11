@@ -22,11 +22,20 @@ export function coastalTerrain(material:T.MeshStandardMaterial){
 export function addWorldDetails(globe:T.Group,obstacles:Obstacle[]){
  const water=new T.MeshStandardMaterial({color:0x206e79,roughness:.29,metalness:.25});
  const sea=new T.Mesh(new T.SphereGeometry(R+SEA_LEVEL,192,128),water);sea.name='Arabian Sea';sea.receiveShadow=true;globe.add(sea);
- const ripple={value:0};water.onBeforeCompile=shader=>{shader.uniforms.seaTime=ripple;shader.vertexShader='varying vec3 seaPoint;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nseaPoint=position;');shader.fragmentShader='uniform float seaTime;varying vec3 seaPoint;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
+ const ripple={value:0};water.onBeforeCompile=shader=>{shader.uniforms.seaTime=ripple;shader.vertexShader='varying vec3 seaPoint;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nseaPoint=position;');shader.fragmentShader='uniform float seaTime;varying vec3 seaPoint;\n'+COAST_GLSL+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
  normal=normalize(normal+vec3(sin(seaPoint.x*36.0+seaTime)*.07,cos(seaPoint.z*31.0+seaTime*.8)*.07,0.0));
+ `);shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+ vec3 seaN=normalize(seaPoint);float seaLon=atan(seaN.z,seaN.x),seaLat=asin(clamp(seaN.y,-1.0,1.0)),coastGap=seaLat-coastLatitude(seaLon);
+ diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.30,.56,.58),(1.0-smoothstep(0.0,.11,-coastGap))*.4);
+ float foam=(1.0-smoothstep(0.0,.02,abs(coastGap)))*(.55+.45*sin(seaLon*130.0+seaTime*2.6));
+ diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.93,.97,.96),clamp(foam,0.0,1.0)*.85);
  `)};
- const m=(color:number)=>new T.MeshStandardMaterial({color,roughness:.93});
- const clay=m(0x965336),timber=m(0x503b28),lime=m(0xe0d6ba),earth=m(0x6d6940),rice=m(0x428348),riceLight=m(0x60994b),boatPaint=m(0x336a80);
+ // Same CC0 PBR pipeline as houses.ts / kerala-props: shared map+normal+rough, tinted per material.
+ const gtexKind:Record<string,Record<string,string>>={aerial_grass_rock:{color:'diff_1k',normal:'nor_gl_1k',rough:'rough_1k'}};
+ const texLoader=new T.TextureLoader(),detailTex:T.Texture[]=[];
+ const dtex=(asset:string,kind:string,srgb=false)=>{const file=gtexKind[asset]?.[kind]??kind;const t=texLoader.load(`/textures/${asset}_${file}.jpg`);t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=4;if(srgb)t.colorSpace=T.SRGBColorSpace;detailTex.push(t);return t;};
+ const pm=(asset:string,color:number,roughness=1)=>new T.MeshStandardMaterial({color,map:dtex(asset,'color',true),normalMap:dtex(asset,'normal'),roughnessMap:dtex(asset,'rough'),normalScale:new T.Vector2(.5,.5),roughness});
+ const clay=pm('clay_roof_tiles',0x965336),timber=pm('wood_planks',0x503b28),lime=pm('painted_plaster_wall',0xe0d6ba),earth=pm('aerial_grass_rock',0x6d6940),rice=pm('aerial_grass_rock',0x428348,.9),riceLight=pm('aerial_grass_rock',0x60994b,.9),boatPaint=pm('wood_planks',0x336a80);
  const boxGeo=new T.BoxGeometry(1,1,1);const box=(g:T.Group,x:number,y:number,z:number,w:number,h:number,d:number,mat:T.Material)=>{const mesh=new T.Mesh(boxGeo,mat);mesh.position.set(x,y,z);mesh.scale.set(w,h,d);mesh.castShadow=mesh.receiveShadow=true;g.add(mesh);return mesh};
  const normal=(t:number,l:number)=>new T.Vector3(Math.cos(t)*Math.cos(l),Math.sin(l),Math.sin(t)*Math.cos(l));
  const reserved:Obstacle[]=[];
@@ -39,9 +48,9 @@ export function addWorldDetails(globe:T.Group,obstacles:Obstacle[]){
   const t=i*2.399,l=-.48+((i*17)%29)/29*1.18,n=normal(t,l);
   if(!isDryLand(t,l)||roadOffset(t,l)<1.5||!clear(n,1.1))continue;
   const g=anchor(t,l,'Paddy field '+(++fields));reserved.push({normal:n,radius:.92});
-  const verts:number[]=[],indices:number[]=[],steps=16;
-  for(let z=0;z<=steps;z++)for(let x=0;x<=steps;x++){const px=(x/steps-.5)*1.5,pz=(z/steps-.5)*1.05;verts.push(px,Math.sqrt(R*R-px*px-pz*pz)-R+.003,pz);if(x<steps&&z<steps){const k=z*(steps+1)+x;indices.push(k,k+steps+1,k+1,k+1,k+steps+1,k+steps+2)}}
-  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(verts,3));geo.setIndex(indices);geo.computeVertexNormals();const patch=new T.Mesh(geo,earth);patch.receiveShadow=true;g.add(patch);
+  const verts:number[]=[],uv:number[]=[],indices:number[]=[],steps=16;
+  for(let z=0;z<=steps;z++)for(let x=0;x<=steps;x++){const px=(x/steps-.5)*1.5,pz=(z/steps-.5)*1.05;verts.push(px,Math.sqrt(R*R-px*px-pz*pz)-R+.003,pz);uv.push(x/steps*10,z/steps*7);if(x<steps&&z<steps){const k=z*(steps+1)+x;indices.push(k,k+steps+1,k+1,k+1,k+steps+1,k+steps+2)}}
+  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(verts,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(indices);geo.computeVertexNormals();const patch=new T.Mesh(geo,earth);patch.receiveShadow=true;g.add(patch);
   // Shared low-poly rice clumps merge to two draws per parcel.
   for(let row=0;row<10;row++)for(let col=0;col<16;col++){
    const x=(col/15-.5)*1.40,z=(row/9-.5)*.95,y=Math.sqrt(R*R-x*x-z*z)-R;
@@ -68,5 +77,5 @@ export function addWorldDetails(globe:T.Group,obstacles:Obstacle[]){
   const oar=box(g,.05,.055,0,.78,.012,.02,timber);oar.rotation.y=.55;
   finish(g);
  }
- return {fields,shops,update(now:number){ripple.value=now*.001},dispose(){}};
+ return {fields,shops,update(now:number){ripple.value=now*.001},dispose(){detailTex.forEach(t=>t.dispose())}};
 }

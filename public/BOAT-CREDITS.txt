@@ -1,0 +1,41 @@
+BOAT MODELS — source, author, license
+======================================
+
+Both boat GLBs in this folder are derived from a single CC0 photoreal PBR
+model, "Ship Pinnace", from Poly Haven. Poly Haven publishes every asset
+under the Creative Commons CC0 1.0 Universal (public domain) license — no
+attribution is legally required; the credits below are given voluntarily.
+
+Source asset : Ship Pinnace
+Source URL   : https://polyhaven.com/a/ship_pinnace
+Files API    : https://api.polyhaven.com/files/ship_pinnace
+Authors      : James Ray Cock (model, textures, cleanup),
+               Nicolo Zubbini (original model),
+               Rico Cilliers (sails), Yann Kervran (rigging)
+License      : CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+
+Processing (with @gltf-transform/core + sharp, glTF 1k download):
+- Stripped the masts, sails, rigging, "details" and sterncastle ("aft")
+  nodes, keeping only the bare wooden hull/deck/interior so the result reads
+  as a simple Kerala smallcraft rather than a European sailing ship.
+- Pruned all orphaned meshes/materials/accessors, deduped, packed to a single
+  self-contained .glb, and downscaled every texture to 512px JPEG (q80).
+  No texture exceeds 512x512; no 4k/2k/1k maps remain.
+
+public/fishing-boat.glb
+  Kept nodes : hull + deck + interior (decked wooden boat)
+  Triangles  : ~32.6k    File size: ~1.66 MB    Textures: 9 x 512px
+  Raw bounds : length 34.53, beam 9.07, height 11.40 (model units)
+
+public/canoe.glb
+  Kept nodes : hull + interior (open hull, no decking — reads as a vallam)
+  Triangles  : ~23.3k    File size: ~1.07 MB    Textures: 6 x 512px
+  Raw bounds : length 33.79, beam 9.07, height 10.34 (model units)
+
+The kit loader (app/kerala-props.ts) orients the bow toward +x, grounds the
+hull at local y=0, centers it in x/z, and normalizes length to 1 world unit
+so callers pass the target length directly (fishing boat ~.6, canoe ~.45).
+
+Note: no CC0 photoreal *dugout canoe* exists on Poly Haven; the canoe here is
+the same hull with the decking removed and a narrower on-load scale, which is
+the closest photoreal match available under a clear CC0 license.

@@ -1,0 +1,5 @@
+Player walking-avatar models (normal humans):
+- public/man.glb   = Khronos glTF-Sample 'CesiumMan' (casual man, built-in walk)  [boy]
+- public/woman.glb = three.js example 'Michelle.glb' (casual woman)             [girl]
+- public/anim.glb  = three.js example 'Soldier.glb' — used only as the Walk/Idle clip donor for woman.glb (shared mixamorig skeleton)
+Sources: github.com/KhronosGroup/glTF-Sample-Models, github.com/mrdoob/three.js (free for use).

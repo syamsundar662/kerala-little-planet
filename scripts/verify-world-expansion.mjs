@@ -35,3 +35,58 @@ const {addWorldDetails,coastalTerrain}=await import(compile('app/world-details.t
 const globe=new T.Group(),details=addWorldDetails(globe,[]);assert.ok(details.fields>=10);assert.ok(details.shops>=6);assert.equal(globe.children.filter(c=>c.name==='Coastal fishing canoe').length,9);assert.ok(globe.getObjectByName('Arabian Sea'));
 for(const water of [true,false]){const material=new T.MeshStandardMaterial();anchorGroundTexture(material,water);const shader={uniforms:{},vertexShader:'#include <begin_vertex>',fragmentShader:'#include <map_fragment>'};material.onBeforeCompile(shader,{});assert.ok(!shader.fragmentShader.includes('${'));assert.ok(shader.fragmentShader.includes('groundDistance/9.0'));assert.ok(!shader.fragmentShader.includes('WORLD_RADIUS'));}
 console.log(`PASS: 2.58× surface area; 3 connected drivable routes; coast/sea elevations; FPV coordinates; collision response at 30/60/144 FPS; ${details.fields} field sites, ${details.shops} shop sites, 9 fishing boats; shader substitutions.`);
+
+// ---- District scenery: 14 landmarks, every district represented, nothing on the road ----
+const sceneryCtx={fillRect(){},strokeRect(){},fillText(){},beginPath(){},moveTo(){},lineTo(){},arc(){},fill(){},stroke(){},closePath(){}};
+global.document={createElement:(tag)=>tag==='canvas'?{width:0,height:0,getContext:()=>sceneryCtx}:{}};
+const {createDistrictScenery}=await import(compile('app/district-scenery.ts'));
+const {DISTRICTS}=await import(compile('app/districts.ts'));
+const sceneryGlobe=new T.Group(),sceneryObstacles=[],sceneryLatitude=t=>world.roadLatitude(t);
+const scenery=createDistrictScenery(sceneryGlobe,sceneryObstacles,sceneryLatitude);
+scenery.update(1234);
+const landmarkGroups=sceneryGlobe.children.filter(c=>c.userData&&c.userData.landmark===true);
+assert.equal(landmarkGroups.length,14,'Every district contributes exactly one authored landmark group');
+assert.equal(scenery.landmarks,14,'Reported landmark total matches the placed groups');
+const placedIds=new Set(sceneryGlobe.children.filter(c=>c.userData&&c.userData.districtId).map(c=>c.userData.districtId));
+for(const d of DISTRICTS)assert.ok(placedIds.has(d.id),`District ${d.id} has at least one scenery group`);
+for(const o of sceneryObstacles){const n=o.normal;const t=Math.atan2(n.z,n.x),lat=Math.asin(T.MathUtils.clamp(n.y,-1,1)),off=world.roadOffset(t,lat);assert.ok(off>.55,`Scenery obstacle sits ${off.toFixed(3)} off the road (needs >0.55)`);}
+for(const d of DISTRICTS){const groups=sceneryGlobe.children.filter(c=>c.userData&&c.userData.districtId===d.id);const landmark=groups.find(c=>c.userData.landmark===true);console.log(`  ${d.id}: ${landmark?landmark.name:'(none)'} — ${groups.length} groups`);}
+// ---- Every shadow-casting scenery structure must clear the drivable asphalt (±.515) + shoulder (±.62) ----
+// The centre-only obstacle rule above misses wide structures whose walls/roofs reach the road even when
+// their pushed centre stays clear. So for every district group we bound each shadow-casting mesh, project
+// its box corners to the sphere and require roadOffset>=.66 at each. Note kit.finish() merges every group
+// per-material and hard-sets castShadow=true on all batches, so the receiveShadow-only ground decals
+// (kit.path strips, water slabs, paddy/ring-road planes) also report castShadow===true. Those are flat,
+// ground-hugging planes, so we exempt any castShadow mesh whose 8 box corners lie in one thin radial shell
+// at ground level; every remaining structure (walls, roofs, hulls, kept homes) must clear the road.
+const STRUCT_CLEAR=.66,DECAL_THICK=.05,GROUND_R=R+.06;
+const sampleOff=v=>{const n=v.clone().normalize();return world.roadOffset(Math.atan2(n.z,n.x),Math.asin(T.MathUtils.clamp(n.y,-1,1)));};
+const structureOffenders=[];
+for(const grp of sceneryGlobe.children){
+ if(!(grp.userData&&grp.userData.districtId))continue;
+ grp.updateWorldMatrix(true,true);
+ let meshIx=0;
+ grp.traverse(o=>{
+  if(!(o instanceof T.Mesh)||o.castShadow!==true)return;
+  const gi=meshIx++;
+  const geo=o.geometry;if(!geo.boundingBox)geo.computeBoundingBox();const bb=geo.boundingBox;
+  const at=(x,y,z)=>new T.Vector3(x,y,z).applyMatrix4(o.matrixWorld);
+  // Flatness is measured from the ACTUAL vertices, not the box corners: a kit.path strip hugs the
+  // sphere (every vertex at radius R+.004), but its long axis-aligned box has corners that curve far
+  // off the surface and would look thick. A ground-hugging decal keeps every vertex in one thin radial
+  // shell at ground level, so exempt it (kit.path strips, water slabs, paddy/ring-road planes).
+  const pa=geo.attributes.position,pv=new T.Vector3();let rMin=Infinity,rMax=0;
+  for(let i=0;i<pa.count;i++){const r=pv.fromBufferAttribute(pa,i).applyMatrix4(o.matrixWorld).length();if(r<rMin)rMin=r;if(r>rMax)rMax=r;}
+  if(rMax-rMin<DECAL_THICK&&rMin<GROUND_R)return; // flat ground decal — exempt
+  const xs=[bb.min.x,bb.max.x],ys=[bb.min.y,bb.max.y],zs=[bb.min.z,bb.max.z];
+  let mn=Infinity;
+  for(const x of xs)for(const z of zs)for(const y of ys)mn=Math.min(mn,sampleOff(at(x,y,z)));
+  mn=Math.min(mn,sampleOff(at((bb.min.x+bb.max.x)/2,(bb.min.y+bb.max.y)/2,(bb.min.z+bb.max.z)/2)));
+  if(mn<STRUCT_CLEAR)structureOffenders.push(`${grp.name}/${gi}: ${mn.toFixed(3)}`);
+ });
+}
+if(structureOffenders.length)console.error('Scenery structures within '+STRUCT_CLEAR+' of a route centre:\n  '+structureOffenders.join('\n  '));
+assert.equal(structureOffenders.length,0,`Every shadow-casting scenery structure clears roadOffset>=${STRUCT_CLEAR}`);
+scenery.dispose();
+assert.equal(sceneryGlobe.children.filter(c=>c.userData&&c.userData.districtId).length,0,'dispose() removes every scenery group from the globe');
+console.log(`PASS: ${landmarkGroups.length} district landmarks; all ${DISTRICTS.length} districts represented; ${sceneryObstacles.length} scenery obstacles clear of every route; dispose empties the globe.`);
