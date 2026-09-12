@@ -8,10 +8,23 @@ export type WalkInput={forward:boolean;reverse:boolean;left:boolean;right:boolea
 const clearAt=(n:T.Vector3,obstacles:Obstacle[],margin=.05)=>obstacles.every(o=>o.disabled||Math.acos(T.MathUtils.clamp(n.dot(o.normal),-1,1))*WORLD_RADIUS>(o.radius??Math.hypot(o.halfX??0,o.halfZ??0))+margin);
 const onLand=(n:T.Vector3)=>isDryLand(Math.atan2(n.z,n.x),Math.asin(T.MathUtils.clamp(n.y,-1,1)),.05);
 
-export function createWalker(spawn:{normal:T.Vector3;heading:T.Vector3},obstacles:Obstacle[]){
+export function createWalker(spawn:{normal:T.Vector3;heading:T.Vector3},obstacles:Obstacle[],characters:Obstacle[]=[]){
  const state:WalkState={normal:spawn.normal.clone().normalize(),heading:spawn.heading.clone().normalize(),speed:0};
  const stepped=(direction:T.Vector3,distance:number)=>{const axis=new T.Vector3().crossVectors(state.normal,direction.clone().multiplyScalar(Math.sign(distance))).normalize();return state.normal.clone().applyQuaternion(new T.Quaternion().setFromAxisAngle(axis,Math.abs(distance)/WORLD_RADIUS)).normalize()};
  const update=(dt:number,input:WalkInput)=>{
+  // Resolve moving people even while standing still, then test travel against them.
+  const blockers=[...obstacles,...characters];
+  for(let pass=0;pass<4;pass++)for(const o of blockers){
+   if(o.disabled||o.radius===undefined)continue;
+   const separation=Math.acos(T.MathUtils.clamp(state.normal.dot(o.normal),-1,1))*WORLD_RADIUS;
+   const required=o.radius+.05;
+   if(separation>=required)continue;
+   const away=state.normal.clone().projectOnPlane(o.normal);
+   if(away.lengthSq()<1e-12)away.copy(state.heading).projectOnPlane(o.normal);
+   away.normalize();
+   const candidate=o.normal.clone().multiplyScalar(Math.cos((required+.0001)/WORLD_RADIUS)).addScaledVector(away,Math.sin((required+.0001)/WORLD_RADIUS)).normalize();
+   if(onLand(candidate)){state.normal.copy(candidate);state.heading.projectOnPlane(candidate).normalize();}
+  }
   const steer=(input.left?1:0)-(input.right?1:0);
   if(steer)state.heading.applyAxisAngle(state.normal,2.4*dt*steer);
   state.heading.addScaledVector(state.normal,-state.heading.dot(state.normal)).normalize();
@@ -23,7 +36,7 @@ export function createWalker(spawn:{normal:T.Vector3;heading:T.Vector3},obstacle
   for(const yaw of [0,.6,-.6]){
    const direction=yaw?state.heading.clone().applyAxisAngle(state.normal,yaw):state.heading.clone();
    const candidate=stepped(direction,distance);
-   if(!onLand(candidate)||!clearAt(candidate,obstacles))continue;
+   if(!onLand(candidate)||!clearAt(candidate,blockers))continue;
    const axis=new T.Vector3().crossVectors(state.normal,direction.multiplyScalar(Math.sign(distance))).normalize();
    const q=new T.Quaternion().setFromAxisAngle(axis,Math.abs(distance)/WORLD_RADIUS);
    state.normal.applyQuaternion(q).normalize();state.heading.applyQuaternion(q).projectOnPlane(state.normal).normalize();

@@ -49,4 +49,24 @@ for(let i=0;i<200;i++){
 assert.equal(outfitForName('Meera'),outfitForName('Meera'));
 for(const name of ['a','Anand','ചിന്നു','visitor 12','x'.repeat(20),''])assert.ok([0,1,2].includes(outfitForName(name)));
 assert.equal(round4(.123456),.1235);
+// (f) presence sharding: interest management is correct and symmetric.
+const {DISTRICTS,regionAt,regionChannels}=await import(compile('app/districts.ts'));
+const ring=[...DISTRICTS].sort((a,b)=>a.gateway-b.gateway).map(d=>d.id);
+const N=ring.length,idx=new Map(ring.map((id,i)=>[id,i]));
+const ringDist=(a,b)=>{const d=Math.abs(idx.get(a)-idx.get(b));return Math.min(d,N-d)};
+const TAU=Math.PI*2;
+for(const d of DISTRICTS)assert.equal(regionAt(d.gateway),d.id,'A gateway longitude maps to its own district');
+for(const id of ring){const ch=regionChannels(id);assert.equal(ch.length,3);assert.equal(new Set(ch).size,3,'channel set is distinct');assert.ok(ch.includes(id),'a client watches its own region');for(const o of ch)if(o!==id)assert.ok(ringDist(id,o)===1,'the other two channels are the longitude-adjacent regions')}
+for(const a of ring)for(const b of ring){
+ const av=new Set(regionChannels(a)),bv=new Set(regionChannels(b));
+ assert.equal(av.has(b),bv.has(a),'subscription adjacency is symmetric (mutual visibility)');
+ const intersect=[...av].some(r=>bv.has(r));
+ assert.equal(intersect,ringDist(a,b)<=2,'two regions share a channel iff within 2 ring-steps (interest culling)');
+}
+// regionAt truly returns the nearest gateway anywhere on the circle, including across the 0/2π seam.
+for(let i=0;i<720;i++){const t=(i/720)*TAU*1.5-TAU*.25;const got=regionAt(t),x=((t%TAU)+TAU)%TAU;
+ let best=ring[0],bd=Infinity;for(const d of DISTRICTS){let dd=Math.abs(x-d.gateway);if(dd>TAU/2)dd=TAU-dd;if(dd<bd){bd=dd;best=d.id}}
+ assert.equal(got,best,'regionAt picks the nearest gateway (seam-safe)')}
+// Neighbours across the array-wrap (kasaragod gateway wraps before thiruvananthapuram) are still adjacent.
+assert.ok(regionChannels('kasaragod').includes('thiruvananthapuram')||ringDist('kasaragod','thiruvananthapuram')<=1,'wrap seam keeps ring adjacency sane');
 console.log('verify-multiplayer: all checks passed');

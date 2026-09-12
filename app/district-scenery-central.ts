@@ -316,7 +316,6 @@ export function addCentralDistricts(globe:T.Group,obstacles:Obstacle[],latitude:
   boxObs(g,0,c,.34,.08);
   kit.signboard(g,0,.2,c+.24,'Palakkad Fort','പാലക്കാട് കോട്ട');finish(g);
  }
- if(typeof process!=='undefined'){for(const o of [...obstacles,...reserved]){const on=o.normal;const tt=(Math.atan2(on.z,on.x)+2*Math.PI)%(2*Math.PI);const r=o.radius??Math.hypot(o.halfX??0,o.halfZ??0);if(r>=.6&&tt>3.5&&tt<4.3)console.error('BIGOBS t=',tt.toFixed(3),'l=',Math.asin(on.y).toFixed(3),'r=',r.toFixed(2),'kind=',o.radius?'round':'box');}}
  const pkStreet=site(4.15,.2,.6,.9,'Palakkad Kalpathi street','palakkad','road',false,.06);
  if(pkStreet){const {g,t,l}=pkStreet;
   // Kalpathi agraharam: a continuous connected row under one shared roofline, pillared verandas, tulsi stands.

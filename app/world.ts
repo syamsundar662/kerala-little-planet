@@ -1,5 +1,5 @@
 // One scale shared by terrain, driving, water and the road-level projection.
-export const WORLD_RADIUS=9;
+export const WORLD_RADIUS=20;
 export const ROAD_SEGMENTS=540;
 export const ROAD_DASHES=132;
 export const ROAD_ROUTES=[0,1,2] as const;

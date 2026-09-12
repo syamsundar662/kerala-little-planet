@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Little Kerala — A village in orbit',
+  title: 'Little Kerala A village in orbit',
   description: 'An interactive miniature Kerala planet. Follow the KSRTC bus through coconut groves and village roads.',
 };
 

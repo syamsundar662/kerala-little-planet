@@ -5,7 +5,7 @@ import {WORLD_RADIUS as R} from './world';
 // Signalling rides the existing Supabase Realtime channel (see multiplayer.ts) — this module never
 // touches the network directly; it hands opaque messages to `send` and is fed replies via handleSignal.
 export type VoiceMsg={t:'ready'|'offer'|'answer'|'ice';sdp?:string;candidate?:RTCIceCandidateInit};
-export type VoiceState={enabled:boolean;status:'off'|'requesting'|'live'|'denied'|'error';nearby:number;speaking:string[];localSpeaking:boolean};
+export type VoiceState={enabled:boolean;status:'off'|'requesting'|'live'|'denied'|'error';nearby:number;speaking:string[];localSpeaking:boolean;talking:boolean};
 
 const STUN:RTCConfiguration={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]};
 const NEAR=1.2,RANGE=3.6,DROP=4.6; // world units of arc distance: full volume within NEAR, silent past RANGE, connection torn down past DROP
@@ -15,12 +15,13 @@ type Peer={pc:RTCPeerConnection;audio:HTMLAudioElement;source?:MediaStreamAudioS
 export function createVoiceChat(opts:{playerId:string;send:(toId:string,msg:VoiceMsg)=>void;onState:(s:VoiceState)=>void}){
  const peers=new Map<string,Peer>();
  let localStream:MediaStream|undefined,ctx:AudioContext|undefined,localAnalyser:AnalyserNode|undefined,localBuf:Float32Array|undefined;
- let enabled=false,status:VoiceState['status']='off',localSpeaking=false,disposed=false;
+ let enabled=false,status:VoiceState['status']='off',localSpeaking=false,talking=false,disposed=false;
  let meter:ReturnType<typeof setInterval>|undefined;
  const near=new Map<string,number>(); // peerId -> current arc distance, maintained by updateProximity
+ const blocked=new Set<string>(); // muted/blocked peers: never connected, never heard
  const initiator=(peerId:string)=>opts.playerId<peerId; // exactly one side of each pair offers; the other answers
 
- const emit=()=>{if(disposed)return;const speaking=[...peers].filter(([,p])=>p.speaking).map(([id])=>id);opts.onState({enabled,status,nearby:[...peers].filter(([,p])=>p.connected).length,speaking,localSpeaking})};
+ const emit=()=>{if(disposed)return;const speaking=[...peers].filter(([,p])=>p.speaking).map(([id])=>id);opts.onState({enabled,status,nearby:[...peers].filter(([,p])=>p.connected).length,speaking,localSpeaking,talking})};
 
  const gainFor=(d:number)=>d<=NEAR?1:d>=RANGE?0:(()=>{const t=(d-NEAR)/(RANGE-NEAR);return 1-t*t*(3-2*t)})();
 
@@ -42,10 +43,10 @@ export function createVoiceChat(opts:{playerId:string;send:(toId:string,msg:Voic
 
  const offer=async(id:string)=>{const p=peers.get(id)||makePeer(id);if(p.makingOffer||p.pc.signalingState!=='stable')return;try{p.makingOffer=true;const o=await p.pc.createOffer();await p.pc.setLocalDescription(o);opts.send(id,{t:'offer',sdp:p.pc.localDescription!.sdp})}catch{}finally{p.makingOffer=false}};
 
- const connect=(id:string)=>{if(peers.has(id))return;if(initiator(id))offer(id);else opts.send(id,{t:'ready'})}; // answerer nudges the initiator in case it enabled first
+ const connect=(id:string)=>{if(peers.has(id)||blocked.has(id))return;if(initiator(id))offer(id);else opts.send(id,{t:'ready'})}; // answerer nudges the initiator in case it enabled first
 
  const handleSignal=async(from:string,msg:VoiceMsg)=>{
-  if(!enabled||disposed)return; // taking part requires a live mic; a stray signal before enable is ignored
+  if(!enabled||disposed||blocked.has(from))return; // taking part requires a live mic; blocked peers are ignored outright
   try{
    if(msg.t==='ready'){if(initiator(from)&&near.has(from)&&!peers.has(from))offer(from);return}
    const p=peers.get(from)||makePeer(from);
@@ -69,6 +70,7 @@ export function createVoiceChat(opts:{playerId:string;send:(toId:string,msg:Voic
    localStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
    ctx=new (window.AudioContext||(window as unknown as {webkitAudioContext:typeof AudioContext}).webkitAudioContext)();await ctx.resume().catch(()=>{});
    localAnalyser=ctx.createAnalyser();localAnalyser.fftSize=256;localBuf=new Float32Array(localAnalyser.fftSize);ctx.createMediaStreamSource(localStream).connect(localAnalyser); // meter only; local mic is never routed to our own speakers
+   localStream.getAudioTracks().forEach(t=>t.enabled=false);talking=false; // mute-by-default: connected but silent until push-to-talk
    enabled=true;status='live';
    for(const id of near.keys())connect(id);
    meter=setInterval(tick,120);
@@ -77,7 +79,7 @@ export function createVoiceChat(opts:{playerId:string;send:(toId:string,msg:Voic
  };
 
  const disable=()=>{
-  enabled=false;status='off';localSpeaking=false;
+  enabled=false;status='off';localSpeaking=false;talking=false;
   if(meter){clearInterval(meter);meter=undefined}
   for(const id of [...peers.keys()])teardown(id);
   localStream?.getTracks().forEach(t=>t.stop());localStream=undefined;
@@ -93,9 +95,14 @@ export function createVoiceChat(opts:{playerId:string;send:(toId:string,msg:Voic
   updateProximity(localNormal:T.Vector3,others:Map<string,T.Vector3>){
    near.clear();
    for(const[id,n]of others){const d=Math.acos(T.MathUtils.clamp(localNormal.dot(n),-1,1))*R;near.set(id,d);const p=peers.get(id);if(p){p.dist=d;if(p.gain&&ctx)p.gain.gain.setTargetAtTime(gainFor(d),ctx.currentTime,.08)}
-    if(enabled){if(d<RANGE&&!peers.has(id))connect(id);else if(d>DROP&&peers.has(id))teardown(id)}}
+    if(enabled){if(blocked.has(id)){if(peers.has(id))teardown(id)}else if(d<RANGE&&!peers.has(id))connect(id);else if(d>DROP&&peers.has(id))teardown(id)}}
    if(enabled)for(const id of [...peers.keys()])if(!others.has(id))teardown(id); // avatar left the world
   },
+  // Push-to-talk: mic starts muted (mute-by-default); the local track only carries audio while talking.
+  setTalking(on:boolean){if(!enabled)return;talking=on;localStream?.getAudioTracks().forEach(t=>t.enabled=on);if(!on)localSpeaking=false;emit()},
+  block(id:string){blocked.add(id);teardown(id)},
+  unblock(id:string){blocked.delete(id)},
+  isBlocked:(id:string)=>blocked.has(id),
   removePeer:teardown,
   dispose(){disposed=true;disable()},
  };

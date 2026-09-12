@@ -18,4 +18,13 @@ const rows:[string,string,string,number,number,string,string,string[],string[]][
 ];
 export const DISTRICTS:District[]=rows.map(([id,name,malayalam,x,y,landscape,festival,stops,neighbors],i)=>({id,name,malayalam,map:[x,y],landscape,festival,stops,neighbors,gateway:(.7+i*Math.PI*2/14)%(Math.PI*2)}));
 export const districtById=(id:string)=>DISTRICTS.find(d=>d.id===id);
+// Presence sharding: districts sit on a ring of gateway longitudes. Spatial neighbours (for interest
+// management) are the longitude-adjacent regions, NOT the road-connectivity `neighbors` graph.
+const TAU=Math.PI*2;
+const REGION_RING=DISTRICTS.map(d=>({id:d.id,g:d.gateway})).sort((a,b)=>a.g-b.g);
+const REGION_INDEX=new Map(REGION_RING.map((r,i)=>[r.id,i]));
+// Nearest district by longitude of a surface point (t = atan2(z,x)); latitude is ignored — districts are longitude bands.
+export function regionAt(t:number){const x=((t%TAU)+TAU)%TAU;let best=REGION_RING[0].id,bd=Infinity;for(const r of REGION_RING){let d=Math.abs(x-r.g);if(d>TAU/2)d=TAU-d;if(d<bd){bd=d;best=r.id}}return best}
+// The set of region ids a client in `id` should subscribe to: itself + the two longitude-adjacent regions (wrapping the ring).
+export function regionChannels(id:string){const n=REGION_RING.length,j=REGION_INDEX.get(id)??0;return [REGION_RING[(j-1+n)%n].id,id,REGION_RING[(j+1)%n].id]}
 export function gatewayAt(t:number,latitudeOffset:number){if(Math.abs(latitudeOffset)>.10)return undefined;return DISTRICTS.find(d=>Math.abs(Math.atan2(Math.sin(t-d.gateway),Math.cos(t-d.gateway)))<.085)}

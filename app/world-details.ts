@@ -19,7 +19,7 @@ export function coastalTerrain(material:T.MeshStandardMaterial){
 }
 
 // Wide physical scenery with shared materials; no extra reflection render passes.
-export function addWorldDetails(globe:T.Group,obstacles:Obstacle[]){
+export function addWorldDetails(globe:T.Group,obstacles:Obstacle[],inDepot:(n:T.Vector3)=>boolean=()=>false){
  const water=new T.MeshStandardMaterial({color:0x206e79,roughness:.29,metalness:.25});
  const sea=new T.Mesh(new T.SphereGeometry(R+SEA_LEVEL,192,128),water);sea.name='Arabian Sea';sea.receiveShadow=true;globe.add(sea);
  const ripple={value:0};water.onBeforeCompile=shader=>{shader.uniforms.seaTime=ripple;shader.vertexShader='varying vec3 seaPoint;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nseaPoint=position;');shader.fragmentShader='uniform float seaTime;varying vec3 seaPoint;\n'+COAST_GLSL+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
@@ -46,7 +46,7 @@ export function addWorldDetails(globe:T.Group,obstacles:Obstacle[]){
  let fields=0,shops=0;
  for(let i=0;i<48;i++){
   const t=i*2.399,l=-.48+((i*17)%29)/29*1.18,n=normal(t,l);
-  if(!isDryLand(t,l)||roadOffset(t,l)<1.5||!clear(n,1.1))continue;
+  if(!isDryLand(t,l)||roadOffset(t,l)<1.5||inDepot(n)||!clear(n,1.1))continue;
   const g=anchor(t,l,'Paddy field '+(++fields));reserved.push({normal:n,radius:.92});
   const verts:number[]=[],uv:number[]=[],indices:number[]=[],steps=16;
   for(let z=0;z<=steps;z++)for(let x=0;x<=steps;x++){const px=(x/steps-.5)*1.5,pz=(z/steps-.5)*1.05;verts.push(px,Math.sqrt(R*R-px*px-pz*pz)-R+.003,pz);uv.push(x/steps*10,z/steps*7);if(x<steps&&z<steps){const k=z*(steps+1)+x;indices.push(k,k+steps+1,k+1,k+1,k+steps+1,k+steps+2)}}
@@ -61,7 +61,7 @@ export function addWorldDetails(globe:T.Group,obstacles:Obstacle[]){
  // Roadside tea shops with shaded verandas, benches and produce crates.
  for(let i=0;i<18;i++){
   const t=.28+i*Math.PI*2/18,l=roadLatitude(t,i%3)+(i%2?1:-1)*.16,n=normal(t,l);
-  if(!isDryLand(t,l)||roadOffset(t,l)<1.0||!clear(n,.82))continue;
+  if(!isDryLand(t,l)||roadOffset(t,l)<1.0||inDepot(n)||!clear(n,.82))continue;
   const g=anchor(t,l,'Village tea shop '+(++shops));const front=normal(t,roadLatitude(t,i%3)).sub(n).projectOnPlane(n).normalize(),right=new T.Vector3().crossVectors(n,front);g.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(right,n,front));
   box(g,0,.23,0,.66,.46,.48,lime);box(g,0,.28,.245,.42,.32,.012,timber);box(g,0,.51,.07,.87,.06,.75,clay).rotation.x=.12;
   for(const x of [-.36,.36])box(g,x,.25,.37,.025,.50,.025,timber);
