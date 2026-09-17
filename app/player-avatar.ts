@@ -2,12 +2,12 @@ import * as T from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {clone} from 'three/addons/utils/SkeletonUtils.js';
 
-// Anatomical MakeHuman base with Blender-authored Kerala clothing and animation.
+// Stylised Kerala villager rig (lighter than the ultrarealistic build) with Blender-authored clothing and animation.
 const TARGET_HEIGHT=.34;      // final world-unit height on the R=9 planet
 const FACE=Math.PI/2;         // yaw so the model faces the group's forward (+X)
 type Rig={scene:T.Group;walk:T.AnimationClip;idle:T.AnimationClip;scale:number;minY:number};
 let keralaRigPromise:Promise<Rig>|undefined;
-const loadKeralaRig=()=>keralaRigPromise??=new GLTFLoader().loadAsync('/kerala-villager-realistic.glb?v=anatomical-20260911').then(gltf=>{
+const loadKeralaRig=()=>keralaRigPromise??=new GLTFLoader().loadAsync('/kerala-villager.glb?v=stylised-20260917').then(gltf=>{
  const scene=gltf.scene;scene.traverse(o=>{if(o instanceof T.Mesh){o.castShadow=o.receiveShadow=true;o.frustumCulled=false}});
  const walk=gltf.animations.find(a=>a.name==='Walk'),idle=gltf.animations.find(a=>a.name==='Idle');
  if(!walk||!idle)throw new Error('Kerala character animations are missing');
