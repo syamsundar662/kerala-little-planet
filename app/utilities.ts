@@ -2,7 +2,7 @@ import {WORLD_RADIUS} from './world';
 import * as T from 'three';
 import type {Obstacle} from './vehicle-physics';
 
-export function addUtilities(globe:T.Group,obstacles:Obstacle[],latitude:(t:number)=>number){
+export function addUtilities(globe:T.Group,obstacles:Obstacle[],latitude:(t:number)=>number,poleCount=12){
  const concrete=new T.MeshStandardMaterial({color:0x99998d,roughness:.95});
  const steel=new T.MeshStandardMaterial({color:0x4e5653,metalness:.65,roughness:.65});
  const ceramic=new T.MeshStandardMaterial({color:0x695748,roughness:.30});
@@ -10,8 +10,8 @@ export function addUtilities(globe:T.Group,obstacles:Obstacle[],latitude:(t:numb
  const poles:T.Group[]=[];
  const lampGlass=new T.MeshStandardMaterial({color:0xffeed0,emissive:0xffcb83,emissiveIntensity:0,roughness:.35});
  const streetLights:T.SpotLight[]=[];
- for(let i=0;i<12;i++){
-  let t=i/12*Math.PI*2+.04;let p=position(t,latitude(t)-.95/WORLD_RADIUS);
+ for(let i=0;i<poleCount;i++){
+  let t=i/poleCount*Math.PI*2+.04;let p=position(t,latitude(t)-.95/WORLD_RADIUS);
   // Slide along the verge to avoid foundations and tree trunks.
   for(let attempt=0;attempt<12;attempt++){
    const n=p.clone().normalize();if(!obstacles.some(o=>Math.acos(T.MathUtils.clamp(n.dot(o.normal),-1,1))*WORLD_RADIUS<(o.radius??Math.hypot(o.halfX??0,o.halfZ??0))+.08))break;

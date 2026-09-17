@@ -6,12 +6,12 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {clone} from 'three/addons/utils/SkeletonUtils.js';
 import {surfaceRadius,type Obstacle} from './vehicle-physics';
 
-export function createPedestrians(globe:T.Group,obstacles:Obstacle[],latitude:(t:number)=>number){
+export function createPedestrians(globe:T.Group,obstacles:Obstacle[],latitude:(t:number)=>number,count=8){
  const staticObstacles=[...obstacles],people:{group:T.Group;t:number;side:number;direction:number;phase:number;mixer?:T.AnimationMixer;walk?:T.AnimationAction;idle?:T.AnimationAction;blend:number;collider:Obstacle;fall?:FallState;fallAxis?:T.Vector3;pivot?:T.Group;pose?:{bone:T.Bone;rest:T.Quaternion;axis:T.Vector3;angle:number}[]}[]=[];
  const point=(t:number,side:number)=>{const lat=latitude(t)+side*(.76/WORLD_RADIUS);return new T.Vector3(Math.cos(t)*Math.cos(lat),Math.sin(lat),Math.sin(t)*Math.cos(lat))};
  const clear=(n:T.Vector3)=>staticObstacles.every(o=>Math.acos(T.MathUtils.clamp(n.dot(o.normal),-1,1))*WORLD_RADIUS>(o.radius??Math.hypot(o.halfX??0,o.halfZ??0))+.07);
- for(let i=0;i<8;i++){
-  let t=i*Math.PI*2/8,side=i%2?1:-1,found=false;
+ for(let i=0;i<count;i++){
+  let t=i*Math.PI*2/count,side=i%2?1:-1,found=false;
   for(let j=0;j<180;j++){t+=.017;if(clear(point(t,side))&&clear(point(t+.025,side))&&clear(point(t-.025,side))){found=true;break}}
   if(!found)continue;
   const group=new T.Group();group.name='Walking villager '+(i+1);group.userData.animatedChildren=true;group.userData.animatedTree=true;
