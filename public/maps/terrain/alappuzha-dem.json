@@ -1,0 +1,1 @@
+{"source":"Mapzen Terrain Tiles / AWS Open Data; SRTM and other open elevation sources","sourceUrl":"https://registry.opendata.aws/terrain-tiles/","attribution":"https://github.com/tilezen/joerd/blob/master/docs/attribution.md","downloadedAt":"2026-09-19T10:06:24.971903+00:00","zoom":12,"step":50,"x":-5600,"z":-46300,"width":1028,"height":1857,"encoding":"int16-le-decimeters"}

@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {downloadMap} from '../app/world-map-provider.ts';
+let urls=[];
+globalThis.fetch=async url=>{urls.push(url);if(urls.length===1)throw new TypeError('Load failed');return Response.json({elements:[]});};
+assert.equal(await downloadMap('bounded-query',new AbortController().signal),'{"elements":[]}');assert.equal(urls.length,2);assert.notEqual(urls[0],urls[1]);
+globalThis.fetch=async()=>new Response('<html>unavailable</html>',{status:502});await assert.rejects(downloadMap('q',new AbortController().signal),/retry/);
+const signal=AbortSignal.abort();let requests=0;globalThis.fetch=async()=>{requests++;return Response.json({elements:[]});};await assert.rejects(downloadMap('q',signal));assert.equal(requests,0);
+console.log('PASS: network failure uses backup; provider errors become actionable; cancellation does not retry.');
+globalThis.fetch=async()=>new Response(' '.repeat(13_600_000)+'{"elements":[]}');
+assert.equal(await downloadMap('q',new AbortController().signal),'{"elements":[]}', 'valid response over former 12 MB limit is accepted and compacted');
+console.log('PASS: valid 13.6 MB response accepted and compacted.');

@@ -1,0 +1,1543 @@
+.drive-game {
+  position: relative;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  background: #bed0d9;
+  color: #f6efd4;
+  font-family: Arial, sans-serif;
+}
+.drive-world {
+  position: absolute;
+  inset: 0;
+}
+.drive-world canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.drive-header {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 30px;
+  background: linear-gradient(#326c6638, transparent);
+  pointer-events: none;
+}
+.drive-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 6px #173b36;
+}
+.drive-logo small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  margin-top: 7px;
+  font-weight: 400;
+}
+.drive-place {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #29463ee8;
+  border: 1px solid #ffffff26;
+  border-radius: 30px;
+  padding: 10px 16px;
+}
+.drive-place select {
+  border: 0;
+  background: transparent;
+  color: #f6efd4;
+  font: 12px Arial;
+  outline-offset: 5px;
+  max-width: 160px;
+}
+.drive-place option {
+  background: #173d36;
+}
+.drive-coins {
+  font-size: 20px;
+  text-align: right;
+  text-shadow: 0 1px 8px #173b36;
+}
+.drive-coins small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+.drive-mission {
+  position: absolute;
+  top: 108px;
+  left: 30px;
+  width: 290px;
+  padding: 21px;
+  background: #203c35e6;
+  backdrop-filter: blur(10px);
+  border: 1px solid #e6edce25;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px #233f3620;
+}
+.drive-mission > span {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #efd18b;
+}
+.drive-mission h1 {
+  font: 22px/1.2 Georgia;
+  letter-spacing: -0.3px;
+  margin: 12px 0;
+}
+.drive-mission p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #bdcfc0;
+}
+.drive-mission > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #e9efdc20;
+  padding-top: 13px;
+  margin-top: 14px;
+}
+.drive-mission > div > b {
+  font-size: 21px;
+  font-weight: 400;
+  color: #efd18b;
+}
+.drive-mission > div > span {
+  font-size: 9px;
+  color: #bed0bd;
+}
+.drive-mission > small {
+  display: block;
+  color: #87a69a;
+  font-size: 8px;
+  margin-top: 10px;
+}
+.drive-mission button,
+.drive-paused button,
+.drive-loading button {
+  background: #e9c784;
+  border: 0;
+  border-radius: 7px;
+  color: #244c3d;
+  padding: 12px 16px;
+  margin-top: 16px;
+  width: 100%;
+  font: 12px Arial;
+  display: flex;
+  justify-content: space-between;
+}
+.drive-actions {
+  position: absolute;
+  right: 30px;
+  top: 111px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.drive-actions button {
+  width: 43px;
+  height: 43px;
+  border: 1px solid #e2ebcc40;
+  border-radius: 11px;
+  background: #29463ee8;
+  color: #eff1da;
+  display: grid;
+  place-items: center;
+}
+.drive-navigation {
+  position: absolute;
+  bottom: 73px;
+  left: 30px;
+  width: 180px;
+  background: #203c35e8;
+  border: 1px solid #e1e9cc40;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px #173b3640;
+}
+.drive-navigation svg {
+  width: 100%;
+  height: 165px;
+  display: block;
+}
+.drive-navigation > span {
+  display: block;
+  font-size: 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 11px 12px;
+  border-top: 1px solid #e9efdc20;
+}
+.drive-speed {
+  position: absolute;
+  bottom: 102px;
+  right: 38px;
+  text-align: center;
+  text-shadow: 0 2px 12px #173b3680;
+}
+.drive-speed strong {
+  font: 72px/1 Georgia;
+  display: block;
+}
+.drive-speed > span {
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+.drive-speed small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 1.3px;
+  margin-top: 17px;
+}
+.drive-help {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  white-space: nowrap;
+  background: #203c35d9;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 10px;
+  color: #b6cec0;
+}
+.drive-help b {
+  font-size: 9px;
+  color: #f2edcf;
+  letter-spacing: 1px;
+  margin-right: 4px;
+}
+.drive-source {
+  position: absolute;
+  bottom: 5px;
+  left: 12px;
+  font-size: 8px;
+  color: #264e44;
+  background: #eff6dc80;
+  padding: 2px 4px;
+  border-radius: 3px;
+  text-decoration: none;
+}
+.drive-daily {
+  position: absolute;
+  bottom: 73px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #f2eacb;
+  text-shadow: 0 1px 8px #123c2f;
+}
+.drive-daily b {
+  color: #ffda89;
+  margin-left: 8px;
+}
+.drive-notice {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f4dfac;
+  color: #2b503f;
+  padding: 15px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  box-shadow: 0 5px 25px #173b3630;
+}
+.drive-paused,
+.drive-loading {
+  position: absolute;
+  inset: 0;
+  background: #143b34b8;
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 15;
+  padding: 25px;
+  text-align: center;
+}
+.drive-paused h2,
+.drive-loading h2 {
+  font: 34px Georgia;
+}
+.drive-paused button,
+.drive-loading button {
+  width: auto;
+  min-width: 160px;
+}
+.drive-loading p {
+  font-size: 13px;
+  color: #c6d8c3;
+}
+.drive-touch {
+  display: none;
+}
+.drive-game button {
+  touch-action: none;
+  user-select: none;
+}
+.drive-game button:focus-visible,
+.drive-game select:focus-visible {
+  outline: 2px solid #f6d791;
+  outline-offset: 4px;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .drive-touch {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 55px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .drive-touch > div {
+    display: flex;
+    gap: 9px;
+  }
+  .drive-touch button {
+    pointer-events: auto;
+    width: 55px;
+    height: 55px;
+    border-radius: 14px;
+    border: 1px solid #e2ecc660;
+    background: #1d463bc9;
+    color: #f7eed3;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .drive-touch button:active {
+    background: #c8dca8;
+    color: #234c3d;
+  }
+  .drive-help {
+    display: none;
+  }
+  .drive-navigation {
+    bottom: 133px;
+    left: 20px;
+    width: 120px;
+  }
+  .drive-navigation svg {
+    height: 100px;
+  }
+  .drive-speed {
+    bottom: 158px;
+    right: 25px;
+  }
+  .drive-speed strong {
+    font-size: 51px;
+  }
+  .drive-speed small {
+    font-size: 6px;
+  }
+  .drive-daily {
+    bottom: 27px;
+    right: 20px;
+  }
+  .drive-mission {
+    left: 20px;
+    top: 93px;
+    width: 245px;
+    padding: 16px;
+  }
+  .drive-mission h1 {
+    font-size: 19px;
+  }
+  .drive-header {
+    padding: 20px;
+  }
+  .drive-logo {
+    font-size: 10px;
+    gap: 8px;
+    letter-spacing: 1px;
+  }
+  .drive-place {
+    padding: 8px 10px;
+  }
+  .drive-place select {
+    font-size: 10px;
+    width: 93px;
+  }
+  .drive-coins {
+    font-size: 16px;
+  }
+  .drive-actions {
+    right: 20px;
+    top: 94px;
+  }
+  .drive-mission p {
+    font-size: 10px;
+  }
+  .drive-notice {
+    top: 350px;
+    width: 85%;
+    text-align: center;
+  }
+  .drive-source {
+    font-size: 6px;
+  }
+  .drive-mission > small {
+    font-size: 7px;
+  }
+}
+@media (max-width: 420px) {
+  .drive-logo small {
+    font-size: 6px;
+    letter-spacing: 0.7px;
+  }
+  .drive-logo svg {
+    width: 20px;
+  }
+  .drive-logo {
+    font-size: 9px;
+  }
+  .drive-header {
+    padding: 15px;
+  }
+  .drive-place {
+    gap: 3px;
+    padding: 8px;
+  }
+  .drive-touch {
+    left: 12px;
+    right: 12px;
+  }
+  .drive-touch button {
+    width: 49px;
+    height: 51px;
+  }
+  .drive-mission {
+    left: 15px;
+    width: 230px;
+  }
+  .drive-mission > div {
+    margin-top: 10px;
+  }
+  .drive-actions {
+    right: 15px;
+  }
+}
+@media (max-height: 650px) {
+  .drive-mission {
+    top: 80px;
+    padding: 13px;
+  }
+  .drive-mission p,
+  .drive-mission > small {
+    display: none;
+  }
+  .drive-navigation {
+    width: 105px;
+    bottom: 100px;
+  }
+  .drive-navigation svg {
+    height: 85px;
+  }
+  .drive-speed {
+    bottom: 125px;
+  }
+  .drive-speed strong {
+    font-size: 45px;
+  }
+}
+
+.drive-enter {
+  position: absolute;
+  bottom: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 13px 20px;
+  border: 1px solid #e4dcac70;
+  background: #203c35e8;
+  color: #f7edce;
+  border-radius: 10px;
+  font: 12px Arial;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 5px 20px #173b3630;
+}
+.drive-enter b {
+  background: #f2deb0;
+  color: #234638;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+.drive-enter:disabled {
+  opacity: 0.7;
+}
+.drive-world canvas {
+  touch-action: none;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .drive-enter {
+    bottom: 112px;
+    padding: 8px 12px;
+    font-size: 10px;
+    gap: 7px;
+  }
+}
+.world-map-overlay {
+  position: absolute;
+  inset: 24px;
+  z-index: 30;
+  background: #f5f4e9;
+  color: #294c3d;
+  border: 1px solid #ffffff75;
+  border-radius: 18px;
+  box-shadow: 0 25px 100px #123e3970;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.world-map-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 25px;
+  border-bottom: 1px solid #d4ddcb;
+}
+.world-map-heading small {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #82917b;
+}
+.world-map-heading h2 {
+  font: 27px Georgia;
+  margin: 6px 0 0;
+}
+.world-map-close {
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border: 0;
+  background: #e3e9d7;
+  border-radius: 10px;
+}
+.world-map-content {
+  display: grid;
+  grid-template-columns: 1fr 245px;
+  flex: 1;
+  min-height: 0;
+}
+.world-map-canvas {
+  position: relative;
+  min-height: 0;
+}
+.world-map-canvas canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: grab;
+}
+.world-map-canvas > a {
+  position: absolute;
+  bottom: 6px;
+  right: 10px;
+  font-size: 9px;
+  color: #456e5c;
+  background: #eff6e5a0;
+  text-decoration: none;
+}
+.world-map-zoom {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.world-map-zoom button {
+  border: 1px solid #c7d3bc;
+  border-radius: 8px;
+  background: #f4f6e8;
+  padding: 8px;
+  display: grid;
+  place-items: center;
+}
+.world-map-content aside {
+  padding: 24px 18px;
+  overflow: auto;
+}
+.world-map-content aside h3 {
+  font: 20px Georgia;
+  margin: 0 0 12px;
+}
+.world-map-content aside p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #7e8d77;
+}
+.world-map-content aside > button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  border: 0;
+  border-bottom: 1px solid #dbe3d0;
+  background: none;
+  color: #375b42;
+  font-size: 12px;
+}
+.world-map-content aside > button span {
+  font-size: 9px;
+  color: #8b987d;
+}
+.world-map-content aside > small {
+  display: block;
+  font-size: 9px;
+  line-height: 2;
+  color: #879780;
+  margin-top: 22px;
+}
+@media (max-width: 650px) {
+  .world-map-overlay {
+    inset: 10px;
+    border-radius: 12px;
+  }
+  .world-map-heading {
+    padding: 15px;
+  }
+  .world-map-heading h2 {
+    font-size: 23px;
+  }
+  .world-map-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 175px;
+  }
+  .world-map-content aside {
+    padding: 12px 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 15px;
+  }
+  .world-map-content aside h3,
+  .world-map-content aside p,
+  .world-map-content aside > small {
+    display: none;
+  }
+  .world-map-content aside > button {
+    font-size: 11px;
+    padding: 10px 0;
+  }
+  .world-map-content aside > button span {
+    font-size: 8px;
+  }
+  .world-map-canvas > a {
+    font-size: 7px;
+  }
+}
+
+.world-map-overlay {
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+}
+
+.drive-actions {
+  align-items: flex-end;
+}
+.drive-actions .drive-map-button {
+  width: auto;
+  min-width: 132px;
+  display: flex;
+  gap: 9px;
+  padding: 0 12px;
+  font-size: 11px;
+}
+.drive-map-button kbd {
+  font: 9px Arial;
+  color: #dbc994;
+  border: 1px solid #ffffff40;
+  padding: 3px 5px;
+  border-radius: 4px;
+}
+@media (max-width: 760px) {
+  .drive-actions .drive-map-button {
+    min-width: 100px;
+    gap: 5px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+  .drive-map-button kbd {
+    display: none;
+  }
+}
+
+.drive-logo > svg {
+  color: #efd18b;
+}
+.drive-coins {
+  background: #29463ed9;
+  border: 1px solid #e6d39540;
+  border-radius: 25px;
+  padding: 9px 19px;
+  color: #efd18b;
+}
+.drive-actions button {
+  border-color: #e9d99955;
+}
+.drive-map-button {
+  color: #f6e4b8 !important;
+}
+
+.drive-weather {
+  position: absolute;
+  top: 98px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px 12px;
+  width: 310px;
+  padding: 10px 15px;
+  border-radius: 14px;
+  background: rgba(28, 52, 47, 0.88);
+  color: #f1eee2;
+  font-size: 13px;
+  pointer-events: auto;
+}
+.drive-weather small {
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  color: #b9c6bd;
+}
+.drive-weather a {
+  text-decoration: underline;
+}
+@media (max-width: 600px) {
+  .drive-weather {
+    top: 76px;
+    width: 260px;
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+  .drive-weather small {
+    font-size: 9px;
+  }
+}
+
+.current-location {
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid #bfd3c4;
+  border-radius: 12px;
+  background: #e5eee4;
+  color: #244d3c;
+}
+.current-location button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #245843;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.current-location button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+.current-location button:focus-visible {
+  outline: 3px solid #287bd3;
+  outline-offset: 2px;
+}
+.current-location small {
+  display: block;
+  margin-top: 9px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.current-location output {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+.current-location output:empty {
+  display: none;
+}
+.current-location output strong,
+.current-location output span {
+  display: block;
+  margin-bottom: 7px;
+}
+@media (max-width: 650px) {
+  .world-map-content aside .current-location {
+    grid-column: 1 / -1;
+    margin: 0 0 12px;
+  }
+  .world-map-content aside .current-location button {
+    width: 100%;
+  }
+}
+
+.area-picker {
+  min-height: 100svh;
+  padding: clamp(20px, 5vw, 64px);
+  display: grid;
+  place-items: center;
+  background: radial-gradient(at 70% 10%, #41695b, #102e32);
+  color: #eef1dd;
+}
+.area-picker-card {
+  width: min(560px, 100%);
+}
+.area-picker-card > small {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: #d3e58e;
+}
+.area-picker h1 {
+  font:
+    clamp(36px, 7vw, 58px)/1.1 Georgia,
+    serif;
+  letter-spacing: -0.035em;
+  margin: 18px 0;
+}
+.area-picker p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #c2d2c7;
+}
+.area-picker h2 {
+  font-size: 16px;
+  margin: 20px 0 12px;
+}
+.area-picker .current-location {
+  margin: 24px 0;
+}
+.area-coordinates {
+  display: flex;
+  gap: 14px;
+}
+.area-coordinates label {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+}
+.area-coordinates input {
+  display: block;
+  margin-top: 6px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #9cb7a766;
+  border-radius: 8px;
+  background: #092e28;
+  color: #fff;
+  font: inherit;
+}
+.area-picker form > button,
+.area-demo {
+  margin-top: 14px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d3e58e66;
+  border-radius: 8px;
+  padding: 12px;
+  background: #d3e58e;
+  color: #173a2b;
+  font: inherit;
+  cursor: pointer;
+}
+.area-picker .area-demo {
+  background: transparent;
+  color: #e8eed7;
+}
+.area-picker .area-note {
+  font-size: 12px;
+  color: #a5beb0;
+}
+.area-picker output {
+  display: block;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.area-picker-card.player-name-card { width: min(460px, 100%); }
+.player-name-card form { margin-top: 28px; }
+.player-name-card label { display: block; margin-bottom: 8px; font-size: 14px; }
+.player-name-card input {
+  width: 100%; min-height: 48px; padding: 12px 14px;
+  border: 1px solid #9cb7a766; border-radius: 8px;
+  background: #092e28; color: #fff; font: inherit; font-size: 16px;
+}
+.player-name-card input:focus-visible { outline: 2px solid #d3e58e; outline-offset: 3px; }
+.player-name-card button:disabled { opacity: .45; cursor: not-allowed; }
+.area-coverage {
+  position: absolute;
+  bottom: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: 70vw;
+  font-size: 11px;
+  color: #fff;
+  background: #173e35dd;
+  padding: 7px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+@media (max-width: 650px) {
+  .area-coverage {
+    bottom: 170px;
+    max-width: 90vw;
+    width: max-content;
+  }
+}
+
+/* Phone HUD: play area first; secondary actions live behind Menu. */
+.drive-mobile-toolbar,
+.mobile-action-label {
+  display: none;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .drive-game {
+    height: 100dvh;
+    min-height: 0;
+    overscroll-behavior: none;
+  }
+  .drive-header {
+    top: env(safe-area-inset-top, 0px);
+    padding: 12px;
+    justify-content: flex-start;
+    background: none;
+  }
+  .drive-logo,
+  .drive-coins,
+  .drive-daily,
+  .drive-help,
+  .drive-speed small,
+  .area-coverage {
+    display: none;
+  }
+  .drive-place {
+    height: 44px;
+    padding: 0 12px;
+    max-width: calc(100vw - 150px);
+    border-radius: 13px;
+  }
+  .drive-place select {
+    width: 125px;
+    max-width: 100%;
+    font-size: 13px;
+  }
+  .drive-mobile-toolbar {
+    display: flex;
+    position: absolute;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: 12px;
+    gap: 8px;
+    z-index: 21;
+  }
+  .drive-mobile-toolbar button {
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px;
+    color: #f6efd4;
+    background: #203c35ed;
+    border: 1px solid #ffffff35;
+    border-radius: 13px;
+    font-size: 12px;
+  }
+  .drive-weather {
+    top: calc(65px + env(safe-area-inset-top, 0px));
+    left: 14px;
+    transform: none;
+    width: auto;
+    max-width: calc(100% - 28px);
+    padding: 0;
+    gap: 8px;
+    font-size: 11px;
+    background: transparent;
+    text-shadow: 0 1px 4px #000;
+    justify-content: flex-start;
+    pointer-events: none;
+  }
+  .drive-weather small {
+    display: none;
+  }
+  .drive-mission {
+    top: calc(90px + env(safe-area-inset-top, 0px));
+    left: 12px;
+    width: auto;
+    max-width: calc(100% - 24px);
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #203c35d9;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  .drive-mission > span,
+  .drive-mission h1,
+  .drive-mission p,
+  .drive-mission > small {
+    display: none;
+  }
+  .drive-mission > div {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    gap: 8px;
+  }
+  .drive-mission > div > b {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .drive-mission > div > span {
+    font-size: 10px;
+  }
+  .drive-mission button {
+    margin-top: 8px;
+    min-height: 44px;
+  }
+  .drive-actions {
+    display: none;
+  }
+  .mobile-menu-open .drive-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    top: calc(66px + env(safe-area-inset-top, 0px));
+    right: 12px;
+    width: 260px;
+    padding: 14px;
+    border-radius: 16px;
+    background: #142e29;
+    box-shadow: 0 12px 40px #0007;
+    z-index: 20;
+    gap: 8px;
+  }
+  .mobile-menu-open .drive-actions button {
+    width: 100%;
+    min-width: 0;
+    height: 50px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+  .mobile-menu-open .drive-actions button[aria-label='Open full district map'] {
+    display: none;
+  }
+  .mobile-action-label {
+    display: inline;
+  }
+  .drive-navigation {
+    left: 12px;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    width: 86px;
+    border-radius: 12px;
+    box-shadow: none;
+    pointer-events: none;
+  }
+  .drive-navigation svg {
+    height: 78px;
+  }
+  .drive-navigation > span {
+    display: none;
+  }
+  .drive-speed {
+    right: 16px;
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+  }
+  .drive-speed strong {
+    font: 600 30px/1 Arial;
+  }
+  .drive-speed > span {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .drive-enter {
+    bottom: calc(105px + env(safe-area-inset-bottom, 0px));
+    max-width: calc(100% - 208px);
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 11px;
+    text-align: center;
+    justify-content: center;
+    box-shadow: none;
+  }
+  .drive-enter b {
+    display: none;
+  }
+  .drive-enter:disabled {
+    display: none;
+  }
+  .drive-touch {
+    left: 12px;
+    right: 12px;
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+  .drive-touch > div {
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .drive-touch button {
+    width: 52px;
+    height: 60px;
+    border-radius: 17px;
+    background: #183c33e8;
+  }
+  .drive-touch button[aria-label='Brake'] {
+    width: 44px;
+    height: 48px;
+    font-size: 9px;
+  }
+  .drive-touch button[aria-label='Accelerate'] {
+    background: #d6c18b;
+    color: #18382e;
+  }
+  .drive-source {
+    display: none;
+  }
+  .mobile-menu-open .drive-source {
+    display: block;
+    left: 12px;
+    right: 12px;
+    bottom: 2px;
+    z-index: 21;
+    font-size: 8px;
+    background: #163c32;
+    color: #cbd9cf;
+    padding: 6px;
+  }
+  .drive-notice {
+    top: calc(140px + env(safe-area-inset-top, 0px));
+    font-size: 12px;
+    width: calc(100% - 32px);
+    z-index: 22;
+  }
+  .drive-paused,
+  .drive-loading {
+    backdrop-filter: none;
+  }
+}
+@media (max-width: 360px) {
+  .drive-touch button {
+    width: 46px;
+  }
+  .drive-touch > div {
+    gap: 6px;
+  }
+  .drive-place select {
+    width: 100px;
+  }
+}
+@media (max-height: 500px) and (pointer: coarse) {
+  .drive-mission {
+    top: calc(90px + env(safe-area-inset-top, 0px));
+  }
+  .drive-navigation {
+    width: 65px;
+    bottom: 96px;
+  }
+  .drive-navigation svg {
+    height: 58px;
+  }
+  .drive-enter {
+    bottom: 24px;
+    max-width: 160px;
+  }
+  .drive-weather {
+    font-size: 10px;
+  }
+}
+.drive-menu-scrim {
+  display: none;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .drive-menu-scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 19;
+    border: 0;
+    background: #061b1833;
+  }
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .drive-touch {
+    left: 50%;
+    right: auto;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+  }
+  .drive-touch .drive-joystick {
+    position: relative;
+    display: block;
+    width: 116px;
+    height: 116px;
+    border-radius: 50%;
+    border: 1px solid #f6efd455;
+    background: #173d35b8;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .drive-joystick[aria-disabled='true'] {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .drive-joystick-thumb {
+    position: absolute;
+    left: calc(50% - 24px);
+    top: calc(50% - 24px);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e7d3a0;
+    border: 2px solid #fff1c7;
+    box-shadow: 0 3px 12px #0004;
+    transform: translate(var(--stick-x, 0px), var(--stick-y, 0px));
+    pointer-events: none;
+  }
+  .drive-joystick-guide {
+    position: absolute;
+    top: 5px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #fff7d9a0;
+    font-size: 17px;
+    pointer-events: none;
+  }
+  .drive-joystick-caption {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 9px;
+    color: #f6efd4;
+    text-shadow: 0 1px 4px #000;
+    pointer-events: none;
+  }
+  .drive-enter {
+    bottom: calc(160px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media (max-height: 500px) and (pointer: coarse) {
+  .drive-touch {
+    left: auto;
+    right: 24px;
+    transform: none;
+    bottom: 24px;
+  }
+  .drive-touch .drive-joystick {
+    width: 100px;
+    height: 100px;
+  }
+  .drive-enter {
+    bottom: 24px;
+  }
+  .drive-speed {
+    bottom: 145px;
+    right: 46px;
+  }
+}
+.drive-touch .drive-joystick {
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+/* Minimal gameplay HUD: reveal details only when requested. */
+.drive-game .drive-daily,
+.drive-game .drive-help,
+.drive-game .drive-logo small,
+.drive-game .drive-coins small,
+.drive-game .drive-weather small,
+.drive-game .drive-speed small,
+.drive-game .drive-mission > span,
+.drive-game .drive-mission h1,
+.drive-game .drive-mission p,
+.drive-game .drive-mission > small {
+  display: none;
+}
+.drive-game[data-mode='walk'] .drive-speed {
+  display: none;
+}
+.drive-game .drive-enter:disabled {
+  display: none;
+}
+.drive-game .drive-actions {
+  display: none;
+}
+.drive-game .drive-source {
+  display: none;
+}
+.drive-game .drive-mission {
+  width: auto;
+  max-width: 300px;
+  padding: 10px 14px;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.drive-game .drive-mission > div {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  gap: 9px;
+}
+.drive-game .drive-mission > div > b {
+  font: 600 16px Arial;
+}
+.drive-game .drive-mission > div > span {
+  font-size: 10px;
+}
+.drive-game .drive-mission button {
+  min-height: 44px;
+  margin-top: 10px;
+}
+.drive-game .drive-mobile-toolbar {
+  display: flex;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  gap: 8px;
+  z-index: 21;
+}
+.drive-game .drive-mobile-toolbar button {
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  background: #203c35ed;
+  border: 1px solid #ffffff30;
+  border-radius: 12px;
+  color: #f6efd4;
+  font: 12px Arial;
+}
+.drive-game.mobile-menu-open .drive-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  top: 74px;
+  right: 20px;
+  width: 270px;
+  gap: 8px;
+  padding: 14px;
+  background: #142e29;
+  box-shadow: 0 12px 40px #0005;
+  border-radius: 16px;
+  z-index: 20;
+}
+.drive-game.mobile-menu-open .drive-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 0 10px;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  font-size: 11px;
+}
+.drive-game .mobile-action-label {
+  display: inline;
+}
+.drive-game.mobile-menu-open
+  .drive-actions
+  button[aria-label='Open full district map'] {
+  display: none;
+}
+.drive-game .drive-menu-scrim {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 19;
+  border: 0;
+  background: #061b1822;
+}
+.drive-game.mobile-menu-open .drive-help {
+  display: flex;
+  position: absolute;
+  top: 282px;
+  bottom: auto;
+  right: 20px;
+  left: auto;
+  transform: none;
+  width: 270px;
+  white-space: normal;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #142e29;
+  z-index: 20;
+}
+.drive-game.mobile-menu-open .drive-source {
+  display: block;
+  bottom: 5px;
+  left: 12px;
+  right: auto;
+  max-width: calc(100% - 24px);
+  z-index: 20;
+  font-size: 8px;
+  background: #173b32;
+  color: #cbd9cf;
+}
+@media (min-width: 761px) and (pointer: fine) {
+  .drive-game .drive-header {
+    padding: 24px;
+    background: none;
+  }
+  .drive-game .drive-logo {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+  }
+  .drive-game .drive-place {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 13px;
+    height: 40px;
+    border-radius: 12px;
+  }
+  .drive-game .drive-coins {
+    position: absolute;
+    top: 29px;
+    right: 176px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 16px;
+  }
+  .drive-game .drive-weather {
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    padding: 0;
+    gap: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+    background: none;
+    text-shadow: 0 1px 5px #183b32;
+  }
+  .drive-game .drive-mission {
+    top: 80px;
+    left: 24px;
+  }
+  .drive-game .drive-navigation {
+    left: 24px;
+    bottom: 24px;
+    width: 136px;
+    box-shadow: none;
+    border-radius: 12px;
+  }
+  .drive-game .drive-navigation svg {
+    height: 120px;
+  }
+  .drive-game .drive-navigation > span {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  .drive-game .drive-enter {
+    bottom: 32px;
+    padding: 10px 15px;
+    box-shadow: none;
+  }
+  .drive-game .drive-speed {
+    right: 24px;
+    bottom: 30px;
+    background: none;
+    border: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .drive-game .drive-speed strong {
+    font: 500 38px/1 Arial;
+  }
+  .drive-game .drive-speed > span {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .drive-game .area-coverage {
+    bottom: 88px;
+    font-size: 10px;
+  }
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .drive-game .drive-mobile-toolbar {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: 12px;
+  }
+  .drive-game.mobile-menu-open .drive-actions {
+    top: calc(66px + env(safe-area-inset-top, 0px));
+    right: 12px;
+    width: 260px;
+  }
+  .drive-game.mobile-menu-open .drive-help {
+    display: none;
+  }
+  .drive-game .drive-mission {
+    padding: 9px 12px;
+    max-width: calc(100% - 24px);
+  }
+}
+.drive-vehicle-choice {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: #f6efd4;
+}
+.drive-vehicle-choice select {
+  min-height: 44px;
+  min-width: 125px;
+  border: 1px solid #ffffff40;
+  border-radius: 9px;
+  padding: 8px;
+  background: #29463e;
+  color: #f6efd4;
+}
+.drive-game.mobile-menu-open .drive-help {
+  top: 340px;
+}

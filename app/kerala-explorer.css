@@ -1,0 +1,25 @@
+.area-picker-card{width:min(840px,100%)}
+.kerala-explorer{margin:28px 0 32px;padding:24px;border:1px solid #b9d0ab40;border-radius:20px;background:#10352de8}
+.kerala-heading>small{color:#d3e58e;letter-spacing:.14em;font-size:10px}
+.kerala-heading h2{font:32px/1.2 Georgia,serif;margin:10px 0}
+.kerala-heading p{margin:0 0 20px;font-size:13px}
+.kerala-browser{display:grid;grid-template-columns:minmax(160px,.85fr) minmax(0,1fr);gap:24px}
+.kerala-overview{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;background:#1e473c;border-radius:12px}
+.kerala-overview svg{width:100%;height:320px}
+.kerala-overview path{fill:#3c6952;stroke:#a0bc88;stroke-width:.65;cursor:pointer;transition:fill .15s}
+.kerala-overview path:hover{fill:#729862}.kerala-overview path.selected{fill:#d3e58e;stroke:#edf7cb;stroke-width:1.4}
+.kerala-overview>small{font-size:9px;color:#adc4b3;margin-top:8px;text-align:center}
+.kerala-district-picker>label{display:block;font-size:12px;color:#c2d4c4;margin-bottom:8px}
+.kerala-district-picker>input{width:100%;padding:11px 12px;border:1px solid #9cb7a766;border-radius:8px;background:#092e28;color:#fff;font:inherit;font-size:13px}
+.kerala-district-list{height:300px;overflow:auto;margin-top:10px;scrollbar-width:thin;scrollbar-color:#688e72 transparent}
+.kerala-district-list button{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:11px 12px;margin:2px 0;border:0;border-radius:8px;background:transparent;color:#e8efde;font:inherit;font-size:13px;cursor:pointer}
+.kerala-district-list button:hover{background:#2a5140}.kerala-district-list button[aria-pressed=true]{background:#d3e58e;color:#153b2c}
+.kerala-district-list small{display:block;font-size:10px;opacity:.75;margin-top:5px}
+.kerala-start{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:22px;padding-top:20px;border-top:1px solid #c6dba72b}
+.kerala-start strong,.kerala-start span,.kerala-start small{display:block}
+.kerala-start strong{font-size:17px;color:#eff3df}.kerala-start span{font-size:12px;line-height:1.6;color:#bed0bd;margin-top:5px}.kerala-start small{font-size:11px;color:#bfd98f;margin-top:6px}
+.kerala-start button{flex-shrink:0;max-width:48%;min-height:46px;border:0;border-radius:9px;padding:12px 18px;background:#d3e58e;color:#173b2c;font:600 13px/1.4 Arial;cursor:pointer}
+.area-picker .kerala-coverage-note{font-size:11px;line-height:1.6;color:#a7beaf;margin:18px 0 0}
+.kerala-explorer input:focus-visible,.kerala-explorer button:focus-visible{outline:2px solid #e8f0b6;outline-offset:3px}
+@media(max-width:560px){.kerala-explorer{padding:16px}.kerala-heading h2{font-size:27px}.kerala-browser{grid-template-columns:minmax(95px,.6fr) minmax(0,1fr);gap:12px}.kerala-overview svg{height:260px}.kerala-district-list{height:250px}.kerala-district-list button{font-size:11px;padding:10px 8px}.kerala-district-picker>label{font-size:10px}.kerala-district-picker>input{font-size:11px;padding:10px 8px}.kerala-start{align-items:stretch;flex-direction:column;gap:14px}.kerala-start button{max-width:none;width:100%}}
+@media(prefers-reduced-motion:reduce){.kerala-overview path{transition:none}}

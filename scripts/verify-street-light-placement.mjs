@@ -1,0 +1,18 @@
+import ts from 'typescript';
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+import * as T from 'three';
+const load=async path=>import('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace("from 'three'",`from '${import.meta.resolve('three')}'`)).toString('base64'));
+const {createStreetLights}=await load('app/street-lights.ts');
+const {createRoadClearance}=await load('app/road-clearance.ts');
+const roads=[{a:[-200,0],b:[200,0],width:9,kind:'primary'},{a:[8,-200],b:[8,200],width:9,kind:'primary'}];
+const clearance=createRoadClearance();roads.forEach(r=>clearance.add(r));
+const scene=new T.Scene(),group=new T.Group(),system=createStreetLights(scene,false);
+system.addChunk(group,roads,()=>0,clearance.blocked);
+assert(group.userData.streetLights.length>0);
+for(const p of group.userData.streetLights) assert.equal(clearance.blocked([[p.x-.25,p.z-.25],[p.x+.25,p.z-.25],[p.x+.25,p.z+.25],[p.x-.25,p.z+.25]]),false);
+assert(system.update(1,new T.Vector3(),0,[group])>0);
+assert.equal(system.update(1,new T.Vector3(),1,[group]),0);
+assert.equal(system.update(1,new T.Vector3(10000,0,0),0,[group]),0);
+system.dispose();assert.equal(scene.children.length,0);
+console.log('PASS: poles clear every road at crossings; night/day transitions; distant lights disabled; light pool disposed.');

@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {mapPlayers} from '../app/world-map-players.ts';
+const packet={id:'test-player',name:'Asha',lon:76.3,lat:9.5,heading:1,vehicle:'bike',seq:2,speed:3};
+const peer={packet,previous:packet,receivedAt:100,interval:100};
+const peers=new Map([[packet.id,peer]]);
+const project=([lon,lat])=>[lon-76,lat-9];
+const [p]=mapPlayers(peers,'online',project,200);
+assert(Math.abs(p.position[0]-300)<1e-8);assert.equal(p.position[1],500);
+assert.equal(p.name,'Asha');assert.equal(p.vehicle,'bike');
+assert.deepEqual(mapPlayers(peers,'reconnecting',project,200),[]);
+assert.deepEqual(mapPlayers(peers,'unconfigured',project,200),[]);
+assert.deepEqual(mapPlayers(peers,'online',project,15100),[]);
+peers.clear();assert.deepEqual(mapPlayers(peers,'online',project,200),[]);
+console.log('PASS: geographic projection, identity/vehicle labels, stale and disconnected peer exclusion.');

@@ -14,7 +14,7 @@ const loadKeralaRig=()=>keralaRigPromise??=new GLTFLoader().loadAsync('/kerala-v
  const box=new T.Box3().setFromObject(scene);return {scene,walk,idle,scale:TARGET_HEIGHT/(box.max.y-box.min.y),minY:box.min.y};
 }).catch(error=>{keralaRigPromise=undefined;throw error});
 
-function makeNameLabel(name:string){
+export function makeNameLabel(name:string){
  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=64;const ctx=canvas.getContext('2d')!;
  ctx.font='600 30px ui-sans-serif,system-ui,sans-serif';const width=Math.min(236,ctx.measureText(name).width+34),x=(256-width)/2;
  ctx.fillStyle='rgba(18,32,28,.78)';ctx.beginPath();ctx.roundRect(x,10,width,44,22);ctx.fill();

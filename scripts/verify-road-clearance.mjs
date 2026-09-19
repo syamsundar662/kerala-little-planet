@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {overlapsRoad,createRoadClearance,sceneryFootprint} from '../app/road-clearance.ts';
+const rectangle=(x,z,w,h)=>[[x,z],[x+w,z],[x+w,z+h],[x,z+h]];
+const road={a:[-100,0],b:[100,0],width:10};
+assert(overlapsRoad(rectangle(-20,-20,40,40),road),'road crosses footprint even with no building corner on asphalt');
+assert(overlapsRoad(rectangle(-2,-2,4,4),road));
+assert(overlapsRoad(rectangle(0,5.5,10,5),road),'shoulder clearance');
+assert(!overlapsRoad(rectangle(0,8,10,5),road),'clear nearby building remains');
+assert(overlapsRoad(sceneryFootprint(0,9,Math.PI),road),'veranda extends toward road');
+const index=createRoadClearance();index.add({a:[-1000,127],b:[1000,127],width:10});
+assert(index.blocked(rectangle(290,129,10,10)),'long segment and adjacent cell checked');
+assert(!index.blocked(rectangle(290,150,10,10)));
+index.clear();assert(!index.blocked(rectangle(290,129,10,10)));
+index.add({a:[290,130],b:[290,140],width:5});assert(index.blocked(rectangle(280,120,30,30)),'stream update uses new road data');
+assert(overlapsRoad(rectangle(0,0,10,10),{a:[4,4],b:[6,6],width:2}),'entire road contained');
+console.log('PASS: footprint/road crossing, enclosed roads, shoulders, rotated verandas, long segments, chunk edges, clear buildings and streamed index refresh.');

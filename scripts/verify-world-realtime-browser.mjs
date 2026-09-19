@@ -1,0 +1,41 @@
+import {chromium} from 'playwright';
+import {createClient} from '@supabase/supabase-js';
+import ts from 'typescript';
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const env=Object.fromEntries(fs.readFileSync('.env.local','utf8').split('\n').filter(s=>s.includes('=')).map(s=>{const i=s.indexOf('=');return [s.slice(0,i),s.slice(i+1)]}));
+const source=ts.transpileModule(fs.readFileSync('app/world-presence.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {createWorldPresence}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const client=createClient(env.VITE_SUPABASE_URL,env.VITE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const id=crypto.randomUUID(),peer=createWorldPresence(client,id,'Browser test guest');
+const browser=await chromium.launch({headless:true,channel:'chrome'});
+try{
+ const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/app/alappuzha-world.ts*',async route=>{
+  const response=await route.fetch(),body=await response.text();assert.ok(body.includes('const livePlayers = createWorldPlayers('));
+  await route.fulfill({response,body:body.replace('const livePlayers = createWorldPlayers(', 'window.__liveScene=scene; window.__livePose=()=>{const geo=unprojectPoint(data,[pos.x/1000,pos.z/1000]);return {lon:geo[0],lat:geo[1],heading,speed:0,vehicle:null}}; const livePlayers = createWorldPlayers(')});
+ });
+ await page.goto('http://localhost:3002',{waitUntil:'networkidle',timeout:60000});
+ assert.equal(await page.locator('canvas').count(),0,'World waits for a name');
+ await page.getByLabel('Your name').fill('   ');
+ assert.ok(await page.getByRole('button',{name:'Continue',exact:true}).isDisabled());
+ await page.getByLabel('Your name').fill('  Test Explorer  ');
+ await page.getByRole('button',{name:'Continue',exact:true}).click();
+ const choose=page.locator('.area-demo');if(await choose.isVisible())await choose.click();
+ await page.waitForFunction(()=>document.querySelector('canvas[data-live-status="online"]'),null,{timeout:30000}).catch(async error=>{console.log('Config:',await page.evaluate(async()=>{const m=await import('/app/realtime.ts');return {any:m.isMultiplayerConfigured(),world:m.isWorldMultiplayerConfigured()}}),'Browser errors:',errors,'Screen:',await page.locator('body').innerText(),'Canvases:',await page.locator('canvas').evaluateAll(nodes=>nodes.map(n=>n.dataset.liveStatus)));throw error});
+ const pose=await page.evaluate(()=>window.__livePose());
+ peer.update({...pose,lon:pose.lon+.00004});
+ await page.waitForFunction(id=>{let found=false;window.__liveScene.traverse(o=>{if(o.userData.livePlayer===id&&o.visible)found=true});return found},id,{timeout:20000});
+ assert.ok(Number(await page.locator('.drive-world canvas').getAttribute('data-live-players'))>=2);
+ const nameDeadline=Date.now()+10000;
+ while(![...peer.peers.values()].some(p=>p.packet.name==='Test Explorer')&&Date.now()<nameDeadline)await page.waitForTimeout(100);
+ assert.ok([...peer.peers.values()].some(p=>p.packet.name==='Test Explorer'),'Entered name reaches other live players');
+ const position=()=>page.evaluate(id=>{let result;window.__liveScene.traverse(o=>{if(o.userData.livePlayer===id&&o.visible)result=o.position.toArray()});return result},id);
+ const before=await position();await page.waitForTimeout(200);peer.update({...pose,lon:pose.lon+.00007,speed:2});await page.waitForTimeout(1200);const moved=await position();assert.ok(Math.abs(moved[0]-before[0])>1,'Remote avatar moves in the real scene');
+ peer.update({...pose,lon:pose.lon+.00007,speed:3,vehicle:'car'});await page.waitForTimeout(1200);
+ assert.ok(await page.evaluate(id=>{let found=false;window.__liveScene.traverse(o=>{if(o.userData.livePlayer===id&&o.name==='car'&&o.visible)found=true});return found},id),'Remote driver renders a car');
+ await page.screenshot({path:'/tmp/live-users-verified.png'});
+ peer.dispose();await page.waitForFunction(id=>{let found=false;window.__liveScene.traverse(o=>{if(o.userData.livePlayer===id)found=true});return !found},id,{timeout:20000});
+ assert.deepEqual(errors,[]);console.log('PASS: live nearby counter, remote avatar, movement, remote car and disconnect removal in the browser against Supabase.');
+}finally{peer.dispose();await client.removeAllChannels();await client.realtime.disconnect();await browser.close();}

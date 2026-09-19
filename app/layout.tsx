@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Little Kerala A village in orbit',
-  description: 'An interactive miniature Kerala planet. Follow the KSRTC bus through coconut groves and village roads.',
+  title: 'Open World · Explore Anywhere',
+  icons: { icon: '/favicon.svg' },
+  description: 'Explore real places in a 3D open world. Walk or drive through nearby streets with changing weather and scenery.',
 };
 
 export default function RootLayout({
