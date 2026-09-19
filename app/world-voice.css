@@ -1,0 +1,109 @@
+.world-voice {
+  position: absolute;
+  top: 84px;
+  left: 16px;
+  z-index: 7;
+  max-width: min(340px, calc(100% - 32px));
+  padding: 9px;
+  border: 1px solid #e6edce30;
+  border-radius: 12px;
+  background: #183a32f2;
+  color: #f5f0df;
+  font:
+    12px/1.4 Arial,
+    sans-serif;
+  box-shadow: 0 4px 18px #0002;
+}
+.world-voice-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.world-voice button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #ffffff2b;
+  border-radius: 8px;
+  background: #315146;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.world-voice button[aria-pressed='true'] {
+  background: #d3e58e;
+  color: #173a2b;
+}
+.world-voice button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.world-voice output {
+  display: block;
+  color: #c3d6c9;
+  font-size: 10px;
+  margin: 6px 2px 0;
+  max-width: 290px;
+}
+.world-voice kbd {
+  font: 10px Arial;
+  border: 1px solid #ffffff45;
+  padding: 0 4px;
+  border-radius: 3px;
+}
+.world-voice-hold {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.world-voice summary {
+  cursor: pointer;
+  margin: 8px 2px 0;
+  font-size: 11px;
+}
+.world-voice ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  max-height: 180px;
+  overflow: auto;
+}
+.world-voice li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 5px;
+}
+.world-voice li > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.world-voice li button {
+  min-height: 32px;
+  padding: 5px 8px;
+}
+.world-voice :focus-visible {
+  outline: 2px solid #d3e58e;
+  outline-offset: 2px;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .world-voice {
+    top: calc(96px + env(safe-area-inset-top, 0px));
+    left: 12px;
+    max-width: calc(100% - 24px);
+  }
+  .world-voice button {
+    min-height: 40px;
+  }
+  .world-voice kbd {
+    display: none;
+  }
+  .mobile-menu-open .world-voice {
+    display: none;
+  }
+}

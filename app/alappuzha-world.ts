@@ -4,6 +4,7 @@ import { mapPlayers, type MapPlayer } from './world-map-players';
 import {getSupabase,isWorldMultiplayerConfigured} from './realtime';
 import {createWorldPresence,type LiveStatus} from './world-presence';
 import {createWorldPlayers} from './world-players';
+import {createWorldVoice, type WorldVoiceState} from './world-voice';
 import {
   createRoadVehicle,
   vehicleSpecs,
@@ -75,6 +76,7 @@ export function createAlappuzhaWorld(
   onHud: (h: WorldHud) => void,
   terrainData: TerrainData,
   playerName = 'Explorer',
+  onVoice: (state: WorldVoiceState) => void = () => {},
 ) {
   const project = mapProjection(data);
   let stops = data.stops ?? defaultStops;
@@ -283,7 +285,9 @@ export function createAlappuzhaWorld(
   });
   const audio = createDrivingAudio();
   const sessionId=globalThis.crypto?.randomUUID?.()??`session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const presence=isWorldMultiplayerConfigured()?createWorldPresence(getSupabase(),sessionId,playerName):undefined;
+  const voice = createWorldVoice({ id: sessionId, send: (to, message) => presence?.sendVoice(to, message), onState: onVoice });
+  const presence=isWorldMultiplayerConfigured()?createWorldPresence(getSupabase(),sessionId,playerName,(from, message) => voice.handleSignal(from, message)):undefined;
+  let lastVoiceUpdate = 0;
   const bus = new T.Group();
   scene.add(bus);
   const livePlayers=createWorldPlayers(scene,project,elevation,bus);
@@ -905,6 +909,7 @@ export function createAlappuzhaWorld(
     stickY = 0;
     keys.clear();
     pointers.clear();
+    voice.hold(false);
   };
   window.addEventListener('keydown', down);
   window.addEventListener('keyup', up);
@@ -1248,6 +1253,13 @@ export function createAlappuzhaWorld(
     });
     const geo=unprojectPoint(data,[pos.x/1000,pos.z/1000]);
     presence?.update({lon:geo[0],lat:geo[1],heading,speed:paused||document.hidden?0:speed,vehicle:inVehicle?kindOf(vehicle):null});
+    if (performance.now() - lastVoiceUpdate > 200) {
+      lastVoiceUpdate = performance.now();
+      voice.updateNearby(presence?.status === 'online' ? [...presence.peers].map(([id, peer]) => {
+        const point = project([peer.packet.lon, peer.packet.lat]);
+        return { id, name: peer.packet.name, distance: Math.hypot(point[0] * 1000 - pos.x, point[1] * 1000 - pos.z) };
+      }) : []);
+    }
     livePlayers.update(presence?.peers??new Map(),pos,paused?0:dt,atmosphere.raining);
     renderer.domElement.dataset.livePlayers=String(presence?.status==='online'?presence.peers.size+1:0);
     renderer.domElement.dataset.liveStatus=presence?.status??'unconfigured';
@@ -1283,6 +1295,7 @@ export function createAlappuzhaWorld(
   };
   frame = requestAnimationFrame(tick);
   return {
+    voice,
     updateMap: (next: MapData) => {
       if (
         disposed ||
@@ -1343,12 +1356,14 @@ export function createAlappuzhaWorld(
     enterExit,
     pause: () => {
       paused = !paused;
+      voice.suspend(paused);
       audio.pause(paused);
       clear();
       return paused;
     },
     dispose: () => {
       disposed = true;
+      voice.dispose();
       presence?.dispose();
       livePlayers.dispose();
       driverName.dispose();

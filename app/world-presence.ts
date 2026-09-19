@@ -67,6 +67,7 @@ export function createWorldPresence(
   client: SupabaseClient,
   id: string,
   name: string,
+  onVoice?: (from: string, message: unknown) => void,
 ) {
   const channels = new Map<
       string,
@@ -152,6 +153,15 @@ export function createWorldPresence(
     channel
       .on('presence', { event: 'sync' }, sync)
       .on('broadcast', { event: 'move' }, ({ payload }) => accept(payload))
+      .on('broadcast', { event: 'voice' }, ({ payload }) => {
+        if (
+          !disposed &&
+          payload?.to === id &&
+          typeof payload.from === 'string' &&
+          peers.has(payload.from)
+        )
+          onVoice?.(payload.from, payload.message);
+      })
       .subscribe((state) => {
         if (disposed || channels.get(room) !== entry) return;
         entry.ready = state === 'SUBSCRIBED';
@@ -183,6 +193,17 @@ export function createWorldPresence(
   }
   return {
     peers,
+    sendVoice(to: string, message: unknown) {
+      const entry = channels.get(home);
+      if (!disposed && entry?.ready && peers.has(to))
+        void entry.channel
+          .send({
+            type: 'broadcast',
+            event: 'voice',
+            payload: { from: id, to, message },
+          })
+          .catch(() => {});
+    },
     get status() {
       return status;
     },

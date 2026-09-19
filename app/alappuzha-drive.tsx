@@ -25,6 +25,8 @@ import { parseWeather, weatherLabel, type Weather } from './alappuzha-weather';
 import type { createWorldStream, StreamStatus } from './world-stream';
 import WorldAreaPicker, { type WorldArea } from './world-area-picker';
 import { createVisitorAnalytics, type VisitorAnalytics } from './visitor-analytics';
+import WorldVoiceControls from './world-voice-controls';
+import { initialVoiceState } from './world-voice';
 
 export default function AlappuzhaDrive() {
   const analytics = useRef<VisitorAnalytics>(undefined);
@@ -95,6 +97,8 @@ function AreaDrive({
   const host = useRef<HTMLDivElement>(null),
     engine = useRef<ReturnType<typeof createAlappuzhaWorld> | null>(null);
   const [streamStatus, setStreamStatus] = useState<StreamStatus>('ready');
+  const [voiceState, setVoiceState] = useState(initialVoiceState);
+  const [voiceApi, setVoiceApi] = useState<ReturnType<typeof createAlappuzhaWorld>['voice']>();
   const [ready, setReady] = useState(false),
     [error, setError] = useState(''),
     [hud, setHud] = useState<WorldHud | null>(null),
@@ -103,6 +107,9 @@ function AreaDrive({
     [muted, setMuted] = useState(false),
     [notice, setNotice] = useState('');
   const [mobileMenu, setMobileMenu] = useState(false);
+  useEffect(() => {
+    engine.current?.voice.suspend(paused || mobileMenu);
+  }, [paused, mobileMenu, ready]);
   useEffect(() => {
     const close = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setMobileMenu(false);
@@ -236,6 +243,7 @@ function AreaDrive({
           },
           terrain,
           playerName,
+          setVoiceState,
         );
         if (streaming && data.origin)
           stream = streaming.createWorldStream(data, {
@@ -250,6 +258,7 @@ function AreaDrive({
             },
           });
         engine.current = instance;
+        setVoiceApi(instance.voice);
         setReady(true);
       })
       .catch((e) => {
@@ -287,6 +296,7 @@ function AreaDrive({
         className="drive-world"
         aria-label={`Playable 3D ${areaName} world`}
       />
+      <WorldVoiceControls voice={voiceApi} state={voiceState} available={ready && hud?.liveStatus === 'online'} paused={paused || mobileMenu} />
       <aside
         className="drive-weather"
         aria-label="Local time and weather"
